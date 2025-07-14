@@ -18,6 +18,10 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        earth: "bg-earth text-white hover:bg-earth/90 shadow-sm",
+        leaf: "bg-leaf text-white hover:bg-leaf/90 shadow-sm",
+        sun: "bg-sun text-white hover:bg-sun/90 shadow-sm",
+        farmer: "bg-gradient-to-r from-leaf to-earth text-white hover:opacity-90 shadow-md",
       },
       size: {
         default: "h-10 px-4 py-2",

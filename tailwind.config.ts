@@ -52,6 +52,20 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				earth: {
+					DEFAULT: 'hsl(var(--earth))',
+					light: 'hsl(var(--earth-light))'
+				},
+				leaf: {
+					DEFAULT: 'hsl(var(--leaf))',
+					light: 'hsl(var(--leaf-light))'
+				},
+				sun: {
+					DEFAULT: 'hsl(var(--sun))',
+					light: 'hsl(var(--sun-light))'
+				},
+				soil: 'hsl(var(--soil))',
+				water: 'hsl(var(--water))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
