@@ -92,6 +92,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    // Set a maximum timeout to prevent infinite loading
+    const setLoadingTimeout = () => {
+      timeoutId = setTimeout(() => {
+        if (mounted) {
+          console.log('Auth loading timeout - forcing loading to false');
+          setLoading(false);
+        }
+      }, 3000); // 3 second max loading time
+    };
+
+    setLoadingTimeout();
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -100,12 +113,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (!mounted) return;
 
+        // Clear any existing timeout
+        if (timeoutId) clearTimeout(timeoutId);
+
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           try {
             // Fetch profile data when user is authenticated
+            console.log('Fetching profile for authenticated user');
             let profileData = await fetchProfile(session.user.id);
             
             // If no profile exists, create one (fallback in case trigger didn't work)
@@ -115,6 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             
             setProfile(profileData);
+            console.log('Profile set:', profileData);
           } catch (error) {
             console.error('Error handling auth state change:', error);
             setProfile(null);
@@ -125,12 +143,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Always set loading to false after processing
         setLoading(false);
+        console.log('Auth loading set to false');
       }
     );
 
     // Check for existing session immediately
     const initializeAuth = async () => {
       try {
+        console.log('Initializing auth...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -141,11 +161,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (!mounted) return;
 
+        // Clear timeout since we're handling the session
+        if (timeoutId) clearTimeout(timeoutId);
+
+        console.log('Session found:', !!session);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           try {
+            console.log('Fetching profile during init');
             let profileData = await fetchProfile(session.user.id);
             
             // If no profile exists, create one
@@ -155,6 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             
             setProfile(profileData);
+            console.log('Profile set during init:', profileData);
           } catch (error) {
             console.error('Error fetching profile during init:', error);
             setProfile(null);
@@ -162,6 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         setLoading(false);
+        console.log('Auth initialization complete - loading set to false');
       } catch (error) {
         console.error('Error initializing auth:', error);
         setLoading(false);
@@ -172,6 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);

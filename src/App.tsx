@@ -11,6 +11,7 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import { AuthRedirect } from "./components/AuthRedirect";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth-redirect" element={<AuthRedirect />} />
             <Route path="/profile-setup" element={
               <ProtectedRoute>
                 <ProfileSetup />

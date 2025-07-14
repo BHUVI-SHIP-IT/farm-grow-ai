@@ -30,6 +30,7 @@ export default function Auth() {
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
+          <p className="text-xs text-gray-400 mt-2">Initializing authentication...</p>
         </div>
       </div>
     );
@@ -37,6 +38,7 @@ export default function Auth() {
 
   // If user is already authenticated, redirect based on profile status
   if (user) {
+    console.log('User authenticated, profile completed:', profile?.profile_completed);
     if (profile?.profile_completed) {
       return <Navigate to="/dashboard" replace />;
     } else {
