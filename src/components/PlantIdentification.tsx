@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Upload, X, Leaf, Droplets, Sun, Bug, AlertTriangle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PlantResult {
   name: string;
@@ -56,39 +57,40 @@ export function PlantIdentification() {
     setIsAnalyzing(true);
     
     try {
-      // Simulate AI analysis - In production, this would call your backend API
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Mock result
-      const mockResult: PlantResult = {
-        name: "Tomato Plant",
-        confidence: 92,
-        scientificName: "Solanum lycopersicum",
-        health: "healthy",
+      const formData = new FormData();
+      formData.append('image', selectedImage);
+
+      const { data, error } = await supabase.functions.invoke('identify-plant', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      // Map response to existing UI structure
+      const mappedResult: PlantResult = {
+        name: data.plantName,
+        confidence: data.confidence,
+        health: data.confidence > 70 ? "healthy" : "nutrient-deficiency" as const,
         care: {
-          watering: "Water deeply 1-2 times per week, ensuring soil drains well",
-          sunlight: "Requires 6-8 hours of direct sunlight daily",
-          fertilizer: "Use balanced fertilizer (10-10-10) every 2-3 weeks during growing season",
-          pruning: "Remove suckers and lower leaves regularly for better air circulation"
+          watering: data.careInstructions,
+          sunlight: "Ensure adequate sunlight based on plant type",
+          fertilizer: "Use appropriate fertilizer for this plant species",
+          pruning: "Follow standard pruning practices for optimal growth"
         },
-        recommendations: [
-          "Monitor for early blight and tomato hornworms",
-          "Provide support stakes or cages as plants grow",
-          "Mulch around base to retain moisture and prevent weeds",
-          "Harvest when fruits are fully colored but still firm"
-        ]
+        recommendations: data.careInstructions ? [data.careInstructions] : ["Follow general plant care guidelines"]
       };
 
-      setResult(mockResult);
+      setResult(mappedResult);
       
       toast({
         title: "Analysis Complete",
-        description: `Identified as ${mockResult.name} with ${mockResult.confidence}% confidence.`,
+        description: `Identified as ${mappedResult.name} with ${mappedResult.confidence}% confidence.`,
       });
     } catch (error) {
+      console.error('Error analyzing plant:', error);
       toast({
         title: "Analysis Failed",
-        description: "Could not analyze the image. Please try again.",
+        description: "Please check your Hugging Face API key in Settings and try again.",
         variant: "destructive",
       });
     } finally {

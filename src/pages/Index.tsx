@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChatInterface } from "@/components/ChatInterface";
 import { PlantIdentification } from "@/components/PlantIdentification";
+import { SettingsComponent } from "@/components/Settings";
 import { 
   Sprout, 
   MessageSquare, 
@@ -15,7 +16,8 @@ import {
   Smartphone,
   Heart,
   Tractor,
-  Sun
+  Sun,
+  Settings
 } from "lucide-react";
 
 const Index = () => {
@@ -90,14 +92,18 @@ const Index = () => {
       <main className="px-4 pb-12">
         <div className="container mx-auto max-w-6xl">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-12">
+            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 h-12">
               <TabsTrigger value="chat" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Ask AI Assistant
+                Chat
               </TabsTrigger>
               <TabsTrigger value="identify" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                 <Camera className="w-4 h-4 mr-2" />
-                Identify Plants
+                Identify
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
               </TabsTrigger>
             </TabsList>
 
@@ -119,6 +125,10 @@ const Index = () => {
                 </p>
               </div>
               <PlantIdentification />
+            </TabsContent>
+
+            <TabsContent value="settings" className="space-y-6">
+              <SettingsComponent />
             </TabsContent>
           </Tabs>
         </div>

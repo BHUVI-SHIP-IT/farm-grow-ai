@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Send, Mic, MicOff, User, Bot, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -52,27 +53,43 @@ export function ChatInterface() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentMessage = inputMessage;
     setInputMessage("");
     setIsLoading(true);
 
     try {
-      // Simulate AI response - In production, this would call your backend API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
       
+      const { data, error } = await supabase.functions.invoke('chat-with-ai', {
+        body: {
+          message: currentMessage,
+          model: selectedModel,
+          userContext: {
+            location: null,
+            farmType: null
+          }
+        }
+      });
+
+      if (error) throw error;
+
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: `Thank you for your question about "${inputMessage}". Based on my agricultural knowledge, I recommend checking soil moisture levels and ensuring proper drainage. For specific crops, timing of watering is crucial during germination and flowering stages. Would you like more detailed advice about a specific crop or farming practice?`,
+        content: data.response || "Sorry, I couldn't generate a response.",
         sender: 'bot',
         timestamp: new Date(),
       };
-
+      
       setMessages(prev => [...prev, botResponse]);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to get response. Please try again.",
-        variant: "destructive",
-      });
+      console.error('Error getting AI response:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "Sorry, I'm having trouble connecting to the AI service. Please check your API keys in Settings.",
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
