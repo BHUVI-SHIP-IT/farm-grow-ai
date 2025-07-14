@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { LogOut, User } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ChatInterface } from "@/components/ChatInterface";
 import { PlantIdentification } from "@/components/PlantIdentification";
 import { SettingsComponent } from "@/components/Settings";
@@ -22,6 +24,11 @@ import {
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("chat");
+  const { user, profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">

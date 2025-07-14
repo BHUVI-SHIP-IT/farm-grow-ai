@@ -108,30 +108,105 @@ export type Database = {
       }
       profiles: {
         Row: {
+          app_notifications: boolean | null
           created_at: string
+          crop_types: Database["public"]["Enums"]["crop_type"][] | null
+          district: string | null
+          email_notifications: boolean | null
           farm_type: string | null
           full_name: string | null
+          gemini_api_key: string | null
+          huggingface_api_key: string | null
           id: string
+          kaggle_api_key: string | null
           location: string | null
+          phone_number: string | null
+          preferred_language:
+            | Database["public"]["Enums"]["preferred_language"]
+            | null
+          profile_completed: boolean | null
+          region_type: Database["public"]["Enums"]["region_type"] | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          sms_notifications: boolean | null
+          soil_type: Database["public"]["Enums"]["soil_type"] | null
+          state: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          app_notifications?: boolean | null
           created_at?: string
+          crop_types?: Database["public"]["Enums"]["crop_type"][] | null
+          district?: string | null
+          email_notifications?: boolean | null
           farm_type?: string | null
           full_name?: string | null
+          gemini_api_key?: string | null
+          huggingface_api_key?: string | null
           id?: string
+          kaggle_api_key?: string | null
           location?: string | null
+          phone_number?: string | null
+          preferred_language?:
+            | Database["public"]["Enums"]["preferred_language"]
+            | null
+          profile_completed?: boolean | null
+          region_type?: Database["public"]["Enums"]["region_type"] | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          sms_notifications?: boolean | null
+          soil_type?: Database["public"]["Enums"]["soil_type"] | null
+          state?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          app_notifications?: boolean | null
           created_at?: string
+          crop_types?: Database["public"]["Enums"]["crop_type"][] | null
+          district?: string | null
+          email_notifications?: boolean | null
           farm_type?: string | null
           full_name?: string | null
+          gemini_api_key?: string | null
+          huggingface_api_key?: string | null
           id?: string
+          kaggle_api_key?: string | null
           location?: string | null
+          phone_number?: string | null
+          preferred_language?:
+            | Database["public"]["Enums"]["preferred_language"]
+            | null
+          profile_completed?: boolean | null
+          region_type?: Database["public"]["Enums"]["region_type"] | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          sms_notifications?: boolean | null
+          soil_type?: Database["public"]["Enums"]["soil_type"] | null
+          state?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
           user_id?: string
         }
         Relationships: []
@@ -144,7 +219,37 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      crop_type:
+        | "rice"
+        | "wheat"
+        | "sugarcane"
+        | "cotton"
+        | "maize"
+        | "soybean"
+        | "pulses"
+        | "vegetables"
+        | "fruits"
+        | "spices"
+        | "other"
+      preferred_language:
+        | "english"
+        | "hindi"
+        | "tamil"
+        | "telugu"
+        | "kannada"
+        | "marathi"
+        | "gujarati"
+        | "bengali"
+      region_type: "rainfed" | "irrigated"
+      soil_type:
+        | "clay"
+        | "loam"
+        | "sandy"
+        | "red"
+        | "black"
+        | "alluvial"
+        | "laterite"
+      user_role: "farmer" | "expert" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -271,6 +376,41 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      crop_type: [
+        "rice",
+        "wheat",
+        "sugarcane",
+        "cotton",
+        "maize",
+        "soybean",
+        "pulses",
+        "vegetables",
+        "fruits",
+        "spices",
+        "other",
+      ],
+      preferred_language: [
+        "english",
+        "hindi",
+        "tamil",
+        "telugu",
+        "kannada",
+        "marathi",
+        "gujarati",
+        "bengali",
+      ],
+      region_type: ["rainfed", "irrigated"],
+      soil_type: [
+        "clay",
+        "loam",
+        "sandy",
+        "red",
+        "black",
+        "alluvial",
+        "laterite",
+      ],
+      user_role: ["farmer", "expert", "admin"],
+    },
   },
 } as const
