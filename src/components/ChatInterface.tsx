@@ -59,11 +59,17 @@ export function ChatInterface() {
 
     try {
       const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
+      const openRouterKey = localStorage.getItem("openRouterKey");
       
+      if (!openRouterKey) {
+        throw new Error("OpenRouter API key not found. Please set it in Settings.");
+      }
+
       const { data, error } = await supabase.functions.invoke('chat-with-ai', {
         body: {
           message: currentMessage,
           model: selectedModel,
+          apiKey: openRouterKey,
           userContext: {
             location: null,
             farmType: null

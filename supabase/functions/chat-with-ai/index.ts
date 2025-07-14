@@ -12,11 +12,10 @@ serve(async (req) => {
   }
 
   try {
-    const { message, model, conversationId, userContext } = await req.json();
-    const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
+    const { message, model, conversationId, userContext, apiKey } = await req.json();
 
-    if (!openRouterApiKey) {
-      return new Response(JSON.stringify({ error: 'OpenRouter API key not configured' }), {
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: 'OpenRouter API key is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -32,7 +31,7 @@ Provide practical, actionable advice that is relevant to small-scale and sustain
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://farmai-assistant.lovable.app',
         'X-Title': 'FarmAI Assistant',
