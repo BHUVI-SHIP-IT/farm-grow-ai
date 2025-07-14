@@ -63,16 +63,13 @@ export const SettingsComponent = () => {
 
     setLoading(true);
     try {
-      // Save API keys to localStorage with error handling
-      try {
-        localStorage.setItem("openRouterKey", openRouterKey);
+      // Save API keys to localStorage first
+      localStorage.setItem("openRouterKey", openRouterKey);
+      if (huggingFaceKey.trim()) {
         localStorage.setItem("huggingFaceKey", huggingFaceKey);
-      } catch (storageError) {
-        console.error("localStorage error:", storageError);
-        throw new Error("Failed to save API keys to browser storage");
       }
       
-      // Test the keys by fetching models
+      // Test the OpenRouter key by fetching models
       await fetchModels(openRouterKey);
       
       toast({
@@ -80,9 +77,10 @@ export const SettingsComponent = () => {
         description: "API keys saved successfully!",
       });
     } catch (error) {
+      console.error("Save API keys error:", error);
       toast({
         title: "Error", 
-        description: "Failed to save API keys. Please check they are valid.",
+        description: error instanceof Error ? error.message : "Failed to save API keys. Please check your OpenRouter API key.",
         variant: "destructive",
       });
     } finally {
