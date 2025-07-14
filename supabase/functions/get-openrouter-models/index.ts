@@ -25,7 +25,8 @@ serve(async (req) => {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://lovableproject.com',
+        'X-Title': 'Farmer Agent App',
       },
     });
 

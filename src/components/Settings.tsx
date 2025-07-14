@@ -97,18 +97,25 @@ export const SettingsComponent = () => {
         body: { apiKey: apiKey || openRouterKey }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to fetch models');
+      }
 
-      setModels(data.models || []);
+      if (!data || !data.models) {
+        throw new Error('Invalid response from OpenRouter API');
+      }
+
+      setModels(data.models);
       toast({
         title: "Success",
-        description: `Loaded ${data.models?.length || 0} models from OpenRouter`,
+        description: `Loaded ${data.models.length} models from OpenRouter`,
       });
     } catch (error) {
       console.error('Error fetching models:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch models. Please check your API key.",
+        description: error instanceof Error ? error.message : "Failed to fetch models. Please check your API key.",
         variant: "destructive",
       });
     } finally {
