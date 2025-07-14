@@ -63,6 +63,12 @@ export function ChatInterface() {
       const openRouterKey = localStorage.getItem("openRouterKey");
       const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
       
+      console.log('Sending chat request with:', { 
+        hasApiKey: !!openRouterKey, 
+        model: selectedModel,
+        message: currentMessage.substring(0, 50) + '...'
+      });
+      
       if (!openRouterKey || openRouterKey.trim() === "") {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -86,11 +92,20 @@ export function ChatInterface() {
         }
       });
 
-      if (error) throw error;
+      console.log('Chat response received:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      if (!data || !data.response) {
+        throw new Error('No response data received from AI service');
+      }
 
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.response || "Sorry, I couldn't generate a response.",
+        content: data.response,
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -100,7 +115,7 @@ export function ChatInterface() {
       console.error('Error getting AI response:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Sorry, I'm having trouble connecting to the AI service. Please check your API keys in Settings.",
+        content: `❌ **Error**: ${error instanceof Error ? error.message : 'Unknown error occurred'}\n\nPlease check:\n- Your OpenRouter API key is valid\n- You have a stable internet connection\n- The selected AI model is available`,
         sender: 'bot',
         timestamp: new Date(),
       };
