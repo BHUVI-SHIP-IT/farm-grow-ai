@@ -152,13 +152,9 @@ export default function Auth() {
       } else {
         toast({
           title: "Account created!",
-          description: "Welcome! Redirecting to profile setup...",
+          description: "Welcome! Please complete your profile setup.",
         });
-        
-        // Small delay to show success message
-        setTimeout(() => {
-          window.location.href = '/profile-setup';
-        }, 1000);
+        // Don't use window.location.href - let the auth state change handle navigation
       }
     } catch (error) {
       console.error('Sign up error:', error);
@@ -172,23 +168,39 @@ export default function Auth() {
     }
   };
 
+  // Show loading spinner only briefly
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">
-            Agricultural Assistant
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+            <Mail className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            FarmAI Assistant
+          </h1>
+          <p className="text-gray-600">Your intelligent farming companion</p>
+        </div>
+
+      <Card className="border-0 shadow-xl">
+        <CardHeader className="text-center pb-6">
+          <CardTitle className="text-xl font-semibold text-gray-900">
+            Welcome Back
           </CardTitle>
           <CardDescription>
-            Your intelligent farming companion
+            Sign in to access your personalized agricultural dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -377,10 +389,11 @@ export default function Auth() {
                   )}
                 </Button>
               </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+             </TabsContent>
+           </Tabs>
+         </CardContent>
+       </Card>
+       </div>
+     </div>
+   );
+ }

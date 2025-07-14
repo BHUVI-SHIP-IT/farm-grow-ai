@@ -118,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
         }
         
+        // Only set loading to false after everything is done
         setLoading(false);
       }
     );
@@ -172,9 +173,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         password
       });
+      
+      // Don't set loading to false here - let auth state change handle it
       return { error };
-    } finally {
+    } catch (error) {
       setLoading(false);
+      return { error };
     }
   };
 
@@ -183,7 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const redirectUrl = `${window.location.origin}/profile-setup`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -191,9 +195,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: userData
         }
       });
+      
+      // Don't set loading to false here - let auth state change handle it
       return { error };
-    } finally {
+    } catch (error) {
       setLoading(false);
+      return { error };
     }
   };
 
