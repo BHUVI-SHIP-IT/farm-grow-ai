@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { ChatInterface } from "@/components/ChatInterface";
 import { PlantIdentification } from "@/components/PlantIdentification";
 import { SettingsComponent } from "@/components/Settings";
+import { WelcomeExperience } from "@/components/WelcomeExperience";
+import React from "react";
 import { 
   Sprout, 
   MessageSquare, 
@@ -24,16 +26,45 @@ import {
 } from "lucide-react";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("chat");
+  const [activeTab, setActiveTab] = useState(() => {
+    // Get tab from URL params if available
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('tab') || 'chat';
+  });
   const { user, profile, signOut } = useAuth();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Update URL when tab changes
+  React.useEffect(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', activeTab);
+    window.history.replaceState(null, '', url.toString());
+  }, [activeTab]);
+
+  // Show welcome experience for new users
+  React.useEffect(() => {
+    if (profile && !localStorage.getItem(`welcome_shown_${profile.id}`)) {
+      setShowWelcome(true);
+    }
+  }, [profile]);
+
+  const handleWelcomeComplete = () => {
+    setShowWelcome(false);
+    if (profile) {
+      localStorage.setItem(`welcome_shown_${profile.id}`, 'true');
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-      <Header />
+    <>
+      {showWelcome && <WelcomeExperience onComplete={handleWelcomeComplete} />}
+      
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <Header />
 
       {/* Hero Section */}
       <section className="py-12 px-4">
@@ -214,6 +245,7 @@ const Index = () => {
         </div>
       </footer>
     </div>
+  </>
   );
 };
 

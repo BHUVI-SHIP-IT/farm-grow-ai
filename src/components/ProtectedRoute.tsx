@@ -13,59 +13,47 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiresProfileSetup = false 
 }) => {
   const { user, profile, loading } = useAuth();
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [timeoutReached, setTimeoutReached] = useState(false);
 
+  console.log('ProtectedRoute - loading:', loading, 'user:', !!user, 'profile:', !!profile);
+
+  // Set a timeout for loading to prevent infinite loading
   useEffect(() => {
-    // Set a timeout for loading state
     const timer = setTimeout(() => {
       if (loading) {
-        setLoadingTimeout(true);
         console.warn('ProtectedRoute loading timeout - possible auth issue');
+        setTimeoutReached(true);
       }
-    }, 8000);
+    }, 8000); // 8 second timeout
 
     return () => clearTimeout(timer);
   }, [loading]);
 
-  console.log('ProtectedRoute - loading:', loading, 'user:', !!user, 'profile:', !!profile);
-
-  if (loading && !loadingTimeout) {
-    return (
-      <LoadingFallback 
-        message="Authenticating..." 
-        timeout={8000}
-        onTimeout={() => setLoadingTimeout(true)}
-      />
-    );
+  // Show loading while auth is being determined or if we hit a timeout
+  if (loading && !timeoutReached) {
+    return <LoadingFallback message="Checking authentication..." />;
   }
 
-  // If loading timed out, try to recover
-  if (loadingTimeout && !user) {
-    return <Navigate to="/auth" replace />;
-  }
-
+  // If no user, redirect to auth
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
-  // If profile setup is required but not completed, redirect to profile setup
+  // If user exists but we're still waiting for profile to load
+  if (user && !profile && !timeoutReached) {
+    return <LoadingFallback message="Loading your profile..." />;
+  }
+
+  // If requires profile setup and profile is not completed
   if (requiresProfileSetup && profile && !profile.profile_completed) {
     return <Navigate to="/profile-setup" replace />;
   }
 
-  // If we require profile setup but don't have a profile yet, wait a bit
+  // If requires profile setup but no profile exists (shouldn't happen due to trigger)
   if (requiresProfileSetup && !profile) {
-    return (
-      <LoadingFallback 
-        message="Loading your profile..." 
-        timeout={5000}
-        onTimeout={() => {
-          console.warn('Profile loading timeout - redirecting to profile setup');
-          window.location.href = '/profile-setup';
-        }}
-      />
-    );
+    return <Navigate to="/profile-setup" replace />;
   }
 
+  // All checks passed, render the protected content
   return <>{children}</>;
 };
