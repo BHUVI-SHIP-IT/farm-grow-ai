@@ -29,7 +29,20 @@ export const SettingsComponent = () => {
 
   useEffect(() => {
     loadSelectedModel();
+    loadSavedApiKeys();
   }, []);
+
+  const loadSavedApiKeys = () => {
+    const savedOpenRouterKey = localStorage.getItem("openRouterKey");
+    const savedHuggingFaceKey = localStorage.getItem("huggingFaceKey");
+    
+    if (savedOpenRouterKey) {
+      setOpenRouterKey(savedOpenRouterKey);
+    }
+    if (savedHuggingFaceKey) {
+      setHuggingFaceKey(savedHuggingFaceKey);
+    }
+  };
 
   const loadSelectedModel = () => {
     const saved = localStorage.getItem("selectedModel");
@@ -50,8 +63,11 @@ export const SettingsComponent = () => {
 
     setLoading(true);
     try {
-      // Store API keys as Supabase secrets would be handled server-side
-      // For now, we'll test the keys by fetching models
+      // Save API keys to localStorage
+      localStorage.setItem("openRouterKey", openRouterKey);
+      localStorage.setItem("huggingFaceKey", huggingFaceKey);
+      
+      // Test the keys by fetching models
       await fetchModels(openRouterKey);
       
       toast({
