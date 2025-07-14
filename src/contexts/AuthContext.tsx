@@ -98,19 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
 
-    // Set a maximum timeout to prevent infinite loading
-    const setLoadingTimeout = () => {
-      timeoutId = setTimeout(() => {
-        if (mounted) {
-          console.log('Auth loading timeout - forcing loading to false');
-          setLoading(false);
-        }
-      }, 3000); // 3 second max loading time
-    };
-
-    setLoadingTimeout();
+    console.log('Initializing auth...');
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -118,9 +107,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Auth state changed:', event, session?.user?.id);
         
         if (!mounted) return;
-
-        // Clear any existing timeout
-        if (timeoutId) clearTimeout(timeoutId);
 
         setSession(session);
         setUser(session?.user ?? null);
@@ -167,9 +153,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (!mounted) return;
 
-        // Clear timeout since we're handling the session
-        if (timeoutId) clearTimeout(timeoutId);
-
         console.log('Session found:', !!session);
         setSession(session);
         setUser(session?.user ?? null);
@@ -205,7 +188,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);

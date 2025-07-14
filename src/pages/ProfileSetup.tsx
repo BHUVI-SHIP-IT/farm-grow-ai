@@ -76,13 +76,13 @@ export default function ProfileSetup() {
     huggingface_api_key: '',
   });
 
-  // Loading state - show spinner while auth is loading
-  if (loading) {
+  // Loading state - show spinner only while initial auth is loading
+  if (loading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading your profile...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
