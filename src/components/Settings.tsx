@@ -89,31 +89,69 @@ export const SettingsComponent = () => {
   };
 
   const fetchModels = async (apiKey?: string) => {
+    const keyToUse = apiKey || openRouterKey;
+    
+    if (!keyToUse || keyToUse.trim() === '') {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenRouter API key first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setFetchingModels(true);
+    console.log('Fetching models from OpenRouter...');
+    
     try {
       const { data, error } = await supabase.functions.invoke('get-openrouter-models', {
-        body: { apiKey: apiKey || openRouterKey }
+        body: { apiKey: keyToUse }
       });
+
+      console.log('Models fetch response:', { hasData: !!data, hasError: !!error, data });
 
       if (error) {
         console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Failed to fetch models');
+        throw new Error(error.message || 'Failed to fetch models from OpenRouter');
       }
 
-      if (!data || !data.models) {
-        throw new Error('Invalid response from OpenRouter API');
+      if (!data || !data.models || !Array.isArray(data.models)) {
+        console.error('Invalid response format:', data);
+        throw new Error('Invalid response format from OpenRouter API');
+      }
+
+      if (data.models.length === 0) {
+        throw new Error('No models available. Please check your API key permissions.');
       }
 
       setModels(data.models);
+      
+      // Auto-select a good default model if none selected
+      const currentSelected = localStorage.getItem("selectedModel");
+      if (!currentSelected && data.models.length > 0) {
+        // Prefer free models first, then fallback to first available
+        const freeModel = data.models.find((m: any) => m.id.includes(':free'));
+        const defaultModel = freeModel || data.models[0];
+        setSelectedModel(defaultModel.id);
+        localStorage.setItem("selectedModel", defaultModel.id);
+      }
+      
       toast({
-        title: "Success",
-        description: `Loaded ${data.models.length} models from OpenRouter`,
+        title: "Models Loaded Successfully!",
+        description: `Found ${data.models.length} AI models. ${data.models.filter((m: any) => m.id.includes(':free')).length} free models available.`,
       });
+      
+      console.log('Successfully loaded models:', {
+        total: data.models.length,
+        free: data.models.filter((m: any) => m.id.includes(':free')).length,
+        firstFew: data.models.slice(0, 3).map((m: any) => m.id)
+      });
+      
     } catch (error) {
       console.error('Error fetching models:', error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to fetch models. Please check your API key.",
+        title: "Failed to Load Models",
+        description: error instanceof Error ? error.message : "Please check your OpenRouter API key and try again.",
         variant: "destructive",
       });
     } finally {

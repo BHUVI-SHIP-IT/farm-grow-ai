@@ -63,16 +63,17 @@ export function ChatInterface() {
       const openRouterKey = localStorage.getItem("openRouterKey");
       const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
       
-      console.log('Sending chat request with:', { 
+      console.log('Starting chat request...', { 
         hasApiKey: !!openRouterKey, 
         model: selectedModel,
-        message: currentMessage.substring(0, 50) + '...'
+        messagePreview: currentMessage.substring(0, 50) + '...',
+        timestamp: new Date().toISOString()
       });
       
       if (!openRouterKey || openRouterKey.trim() === "") {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: "⚠️ Please configure your OpenRouter API key in the Settings tab first.",
+          content: "🔑 **API Key Required**\n\nPlease configure your OpenRouter API key in the **Settings** tab to start chatting with the AI.\n\n**Steps:**\n1. Go to Settings tab\n2. Enter your OpenRouter API key\n3. Save and fetch models\n4. Return here to chat!",
           sender: 'bot',
           timestamp: new Date(),
         };
@@ -80,27 +81,60 @@ export function ChatInterface() {
         return;
       }
 
+      // Show a more engaging loading state
+      const loadingMessage: Message = {
+        id: 'loading-temp',
+        content: '🤖 Analyzing your farming question and preparing expert advice...',
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, loadingMessage]);
+
       const { data, error } = await supabase.functions.invoke('chat-with-ai', {
         body: {
           message: currentMessage,
           model: selectedModel,
           apiKey: openRouterKey,
           userContext: {
-            location: null,
-            farmType: null
+            location: null, // TODO: Get from user profile
+            farmType: null  // TODO: Get from user profile
           }
         }
       });
 
-      console.log('Chat response received:', { data, error });
+      console.log('Chat response received:', { 
+        hasData: !!data, 
+        hasError: !!error,
+        dataKeys: data ? Object.keys(data) : [],
+        timestamp: new Date().toISOString()
+      });
+
+      // Remove loading message
+      setMessages(prev => prev.filter(msg => msg.id !== 'loading-temp'));
 
       if (error) {
         console.error('Supabase function error:', error);
-        throw error;
+        throw new Error(error.message || 'Failed to get AI response');
       }
 
-      if (!data || !data.response) {
+      if (!data) {
         throw new Error('No response data received from AI service');
+      }
+
+      // Handle user-friendly error messages from the API
+      if (data.userMessage) {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.userMessage,
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+
+      if (!data.response || data.response.trim() === '') {
+        throw new Error('Empty response received from AI service');
       }
 
       const botResponse: Message = {
@@ -110,16 +144,42 @@ export function ChatInterface() {
         timestamp: new Date(),
       };
       
+      console.log('Adding AI response to chat:', {
+        responseLength: data.response.length,
+        model: data.model,
+        timestamp: new Date().toISOString()
+      });
+      
       setMessages(prev => [...prev, botResponse]);
+      
+      // Show success toast for long responses
+      if (data.response.length > 500) {
+        toast({
+          title: "AI Response Generated",
+          description: "Got a comprehensive answer from your AI farm assistant!",
+        });
+      }
+
     } catch (error) {
-      console.error('Error getting AI response:', error);
+      console.error('Error in chat request:', error);
+      
+      // Remove any loading messages
+      setMessages(prev => prev.filter(msg => msg.id !== 'loading-temp'));
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `❌ **Error**: ${error instanceof Error ? error.message : 'Unknown error occurred'}\n\nPlease check:\n- Your OpenRouter API key is valid\n- You have a stable internet connection\n- The selected AI model is available`,
+        content: `🚨 **Chat Error**\n\n${error instanceof Error ? error.message : 'An unexpected error occurred'}\n\n**Troubleshooting:**\n- Check your internet connection\n- Verify your OpenRouter API key in Settings\n- Try asking a simpler question\n- Contact support if the issue persists\n\n*Error details: ${error instanceof Error ? error.message : 'Unknown error'}*`,
         sender: 'bot',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
+      
+      // Show error toast
+      toast({
+        title: "Chat Error",
+        description: error instanceof Error ? error.message : "Failed to get AI response",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
