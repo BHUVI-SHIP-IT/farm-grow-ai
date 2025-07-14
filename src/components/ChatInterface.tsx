@@ -58,11 +58,22 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
+      // Get API key and model from localStorage
       const openRouterKey = localStorage.getItem("openRouterKey");
+      const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
       
-      if (!openRouterKey) {
-        throw new Error("OpenRouter API key not found. Please set it in Settings.");
+      console.log("Chat Debug - API key found:", !!openRouterKey);
+      console.log("Chat Debug - Selected model:", selectedModel);
+      
+      if (!openRouterKey || openRouterKey.trim() === "") {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: "⚠️ Please configure your OpenRouter API key in the Settings tab first.",
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
       }
 
       const { data, error } = await supabase.functions.invoke('chat-with-ai', {

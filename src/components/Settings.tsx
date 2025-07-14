@@ -33,14 +33,20 @@ export const SettingsComponent = () => {
   }, []);
 
   const loadSavedApiKeys = () => {
+    console.log("Debug - Loading saved API keys...");
     const savedOpenRouterKey = localStorage.getItem("openRouterKey");
     const savedHuggingFaceKey = localStorage.getItem("huggingFaceKey");
     
+    console.log("Debug - Saved OpenRouter key found:", !!savedOpenRouterKey);
+    console.log("Debug - Saved HuggingFace key found:", !!savedHuggingFaceKey);
+    
     if (savedOpenRouterKey) {
       setOpenRouterKey(savedOpenRouterKey);
+      console.log("Debug - OpenRouter key loaded:", savedOpenRouterKey.substring(0, 10) + "...");
     }
     if (savedHuggingFaceKey) {
       setHuggingFaceKey(savedHuggingFaceKey);
+      console.log("Debug - HuggingFace key loaded:", savedHuggingFaceKey.substring(0, 10) + "...");
     }
   };
 
@@ -63,9 +69,15 @@ export const SettingsComponent = () => {
 
     setLoading(true);
     try {
-      // Save API keys to localStorage
-      localStorage.setItem("openRouterKey", openRouterKey);
-      localStorage.setItem("huggingFaceKey", huggingFaceKey);
+      // Save API keys to localStorage with error handling
+      try {
+        localStorage.setItem("openRouterKey", openRouterKey);
+        localStorage.setItem("huggingFaceKey", huggingFaceKey);
+        console.log("Settings Debug - Keys saved successfully");
+      } catch (storageError) {
+        console.error("Settings Debug - localStorage error:", storageError);
+        throw new Error("Failed to save API keys to browser storage");
+      }
       
       // Test the keys by fetching models
       await fetchModels(openRouterKey);
