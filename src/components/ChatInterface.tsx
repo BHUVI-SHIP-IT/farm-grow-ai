@@ -203,26 +203,55 @@ export function ChatInterface() {
               )}
               
               <div
-                className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${
+                className={`max-w-[85%] rounded-2xl p-5 shadow-sm ${
                   message.sender === 'user'
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white ml-auto'
+                    ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white ml-auto'
                     : 'bg-white border border-gray-100 shadow-md'
                 }`}
               >
                 <div className={`prose prose-sm max-w-none ${
                   message.sender === 'user' 
                     ? 'prose-invert' 
-                    : 'prose-emerald'
+                    : 'prose-slate'
                 }`}>
                   <ReactMarkdown
                     components={{
-                      p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                      ul: ({ children }) => <ul className="my-2 space-y-1">{children}</ul>,
-                      li: ({ children }) => <li className="flex items-start gap-2">{children}</li>,
-                      h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                      h2: ({ children }) => <h2 className="text-base font-semibold mb-2">{children}</h2>,
-                      h3: ({ children }) => <h3 className="text-sm font-semibold mb-1">{children}</h3>,
+                      p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed text-sm">{children}</p>,
+                      strong: ({ children }) => <strong className="font-bold text-emerald-700">{children}</strong>,
+                      em: ({ children }) => <em className="italic text-emerald-600">{children}</em>,
+                      ul: ({ children }) => <ul className="my-3 ml-4 space-y-2 list-disc marker:text-emerald-500">{children}</ul>,
+                      ol: ({ children }) => <ol className="my-3 ml-4 space-y-2 list-decimal marker:text-emerald-500">{children}</ol>,
+                      li: ({ children }) => <li className="text-sm leading-relaxed pl-2">{children}</li>,
+                      h1: ({ children }) => <h1 className="text-lg font-bold mb-3 text-emerald-800 border-b border-emerald-200 pb-2">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-base font-bold mb-3 text-emerald-700">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-semibold mb-2 text-emerald-600">{children}</h3>,
+                      h4: ({ children }) => <h4 className="text-sm font-medium mb-2 text-gray-700">{children}</h4>,
+                      blockquote: ({ children }) => (
+                        <blockquote className="border-l-4 border-emerald-300 pl-4 py-2 my-3 bg-emerald-50 italic text-emerald-800">
+                          {children}
+                        </blockquote>
+                      ),
+                      table: ({ children }) => (
+                        <div className="overflow-x-auto my-4">
+                          <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      thead: ({ children }) => <thead className="bg-emerald-50">{children}</thead>,
+                      th: ({ children }) => <th className="px-4 py-3 text-left text-xs font-semibold text-emerald-800 uppercase tracking-wider border-b border-gray-200">{children}</th>,
+                      td: ({ children }) => <td className="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">{children}</td>,
+                      tr: ({ children }) => <tr className="hover:bg-gray-50">{children}</tr>,
+                      code: ({ children }) => (
+                        <code className="bg-gray-100 text-emerald-700 px-2 py-1 rounded text-xs font-mono">
+                          {children}
+                        </code>
+                      ),
+                      pre: ({ children }) => (
+                        <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto my-3 text-sm">
+                          {children}
+                        </pre>
+                      ),
                     }}
                   >
                     {message.content}
@@ -236,7 +265,7 @@ export function ChatInterface() {
               </div>
 
               {message.sender === 'user' && (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
                   <User className="w-5 h-5 text-white" />
                 </div>
               )}
