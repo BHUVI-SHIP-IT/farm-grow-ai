@@ -207,34 +207,43 @@ export default function ProfileSetup() {
     
     setIsSubmitting(true);
     
-    // Set a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Timeout Error",
-        description: "Profile setup is taking too long. Please try again.",
-        variant: "destructive",
-      });
-    }, 10000); // 10 second timeout
-    
     try {
+      // Validate required fields
+      if (!formData.full_name?.trim()) {
+        toast({
+          title: "Incomplete Information",
+          description: "Please enter your full name.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Filter out empty strings and undefined values
+      const cleanFormData = Object.fromEntries(
+        Object.entries(formData).filter(([_, value]) => {
+          if (typeof value === 'string') return value.trim() !== '';
+          if (Array.isArray(value)) return value.length > 0;
+          return value !== null && value !== undefined;
+        })
+      );
+
       const updateData = {
-        ...formData,
-        profile_completed: true
+        ...cleanFormData,
+        profile_completed: true,
+        // Ensure required fields have defaults
+        role: profile?.role || 'farmer',
+        preferred_language: cleanFormData.preferred_language || 'english'
       };
 
-      console.log('Submitting profile data:', updateData);
+      console.log('Submitting clean profile data:', updateData);
       
       const { error } = await updateProfile(updateData as any);
-      
-      // Clear timeout since we got a response
-      clearTimeout(timeoutId);
       
       if (error) {
         console.error('Profile update error:', error);
         toast({
-          title: "Setup failed",
-          description: error.message || "Failed to complete profile setup.",
+          title: "Setup failed", 
+          description: error.message || "Failed to complete profile setup. Please try again.",
           variant: "destructive",
         });
       } else {
@@ -243,13 +252,10 @@ export default function ProfileSetup() {
           description: "Welcome to your personalized agricultural assistant.",
         });
         
-        // Force navigation after a brief delay
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+        // Navigate immediately on success
+        navigate('/dashboard', { replace: true });
       }
     } catch (error) {
-      clearTimeout(timeoutId);
       console.error('Profile update error:', error);
       toast({
         title: "Error",
