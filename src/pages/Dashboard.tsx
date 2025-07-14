@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Header } from '@/components/Header';
 import { 
   MessageSquare, 
   Camera, 
@@ -15,7 +16,8 @@ import {
   TrendingUp,
   Bell,
   MapPin,
-  Calendar
+  Calendar,
+  ArrowRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -205,43 +207,35 @@ export default function Dashboard() {
   const content = getPersonalizedContent();
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+      <Header />
+
+      {/* Welcome Section */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarFallback className={`text-white ${getRoleColor(profile.role)}`}>
-                  {getUserInitials(profile.full_name)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-2xl font-bold">
-                  {getPersonalizedGreeting()}, {profile.full_name?.split(' ')[0] || 'User'}!
-                </h1>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="capitalize">
-                    {profile.role}
-                  </Badge>
-                  {profile.district && profile.state && (
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {profile.district}, {profile.state}
-                    </span>
-                  )}
-                </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {getPersonalizedGreeting()}, {profile.full_name?.split(' ')[0] || 'User'}!
+              </h1>
+              <p className="text-gray-600 mt-2">Welcome back to your agricultural dashboard</p>
+              <div className="flex items-center gap-3 mt-3">
+                <Badge variant="secondary" className="capitalize">
+                  {profile.role}
+                </Badge>
+                {profile.district && profile.state && (
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    {profile.district}, {profile.state}
+                  </span>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Link to="/settings">
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </Link>
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Profile Status</p>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                ✓ Complete
+              </Badge>
             </div>
           </div>
         </div>
@@ -254,16 +248,19 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {quickActions.map((action, index) => (
               <Link key={index} to={action.href}>
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${action.color} text-white`}>
-                        <action.icon className="h-5 w-5" />
+                <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 border-0 shadow-md bg-white">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl ${action.color} text-white shadow-lg`}>
+                          <action.icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">{action.title}</h3>
+                          <p className="text-sm text-muted-foreground">{action.description}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">{action.title}</h3>
-                        <p className="text-sm text-muted-foreground">{action.description}</p>
-                      </div>
+                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
                     </div>
                   </CardContent>
                 </Card>

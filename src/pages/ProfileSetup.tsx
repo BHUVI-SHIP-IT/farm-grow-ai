@@ -95,7 +95,7 @@ export default function ProfileSetup() {
 
   // Redirect if profile is already completed
   if (profile?.profile_completed) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Initialize form data from profile when available
@@ -222,7 +222,10 @@ export default function ProfileSetup() {
           title: "Profile completed!",
           description: "Welcome to your personalized agricultural assistant.",
         });
-        navigate('/');
+        // Use a small delay to ensure state updates, then navigate to dashboard
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 500);
       }
     } catch (error) {
       console.error('Profile update error:', error);

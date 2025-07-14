@@ -213,17 +213,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const { error } = await supabase
+      console.log('Updating profile with data:', updates);
+      
+      // Use upsert to handle both insert and update cases
+      const { data, error } = await supabase
         .from('profiles')
-        .update(updates)
-        .eq('user_id', user.id);
+        .upsert({ 
+          user_id: user.id, 
+          ...updates,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        })
+        .select()
+        .single();
 
-      if (!error) {
-        await refreshProfile();
+      if (error) {
+        console.error('Profile update error:', error);
+        return { error };
       }
 
-      return { error };
+      console.log('Profile updated successfully:', data);
+      
+      // Update local state immediately
+      setProfile(data);
+      
+      return { error: null };
     } catch (error) {
+      console.error('Profile update exception:', error);
       return { error };
     }
   };

@@ -192,7 +192,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_profile: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          full_name: string
+          role: Database["public"]["Enums"]["user_role"]
+          preferred_language: Database["public"]["Enums"]["preferred_language"]
+          profile_completed: boolean
+          district: string
+          state: string
+          crop_types: Database["public"]["Enums"]["crop_type"][]
+          soil_type: Database["public"]["Enums"]["soil_type"]
+          region_type: Database["public"]["Enums"]["region_type"]
+          sms_notifications: boolean
+          email_notifications: boolean
+          app_notifications: boolean
+          created_at: string
+          updated_at: string
+        }[]
+      }
     }
     Enums: {
       crop_type:
