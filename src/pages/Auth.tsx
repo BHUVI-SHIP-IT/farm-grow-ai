@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Smartphone, Mail } from 'lucide-react';
 
 export default function Auth() {
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, profile, signIn, signUp, loading } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'expert' | 'admin'>('farmer');
@@ -23,9 +23,13 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // If user is already authenticated, check if profile is completed
+  // If user is already authenticated, redirect based on profile status
   if (user && !loading) {
-    return <Navigate to="/profile-setup" replace />;
+    if (profile?.profile_completed) {
+      return <Navigate to="/dashboard" replace />;
+    } else {
+      return <Navigate to="/profile-setup" replace />;
+    }
   }
 
   const validateEmail = (email: string) => {

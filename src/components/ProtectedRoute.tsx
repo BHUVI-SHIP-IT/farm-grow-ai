@@ -31,10 +31,5 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/profile-setup" replace />;
   }
 
-  // If we're not requiring profile setup but it's not completed, redirect to setup
-  if (!requiresProfileSetup && profile && !profile.profile_completed) {
-    return <Navigate to="/profile-setup" replace />;
-  }
-
   return <>{children}</>;
 };
