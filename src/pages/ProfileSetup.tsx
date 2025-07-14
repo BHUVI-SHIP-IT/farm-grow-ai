@@ -51,34 +51,21 @@ const INDIAN_STATES = [
 
 export default function ProfileSetup() {
   const { user, profile, updateProfile, loading } = useAuth();
-  console.log('ProfileSetup - user:', user?.id, 'profile:', profile, 'loading:', loading);
   const { toast } = useToast();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
+  console.log('ProfileSetup render - user:', user?.id, 'profile:', profile, 'loading:', loading);
+
   // Form state
-  const [formData, setFormData] = useState<{
-    full_name: string;
-    district: string;
-    state: string;
-    preferred_language: 'english' | 'hindi' | 'tamil' | 'telugu' | 'kannada' | 'marathi' | 'gujarati' | 'bengali';
-    crop_types: ('rice' | 'wheat' | 'sugarcane' | 'cotton' | 'maize' | 'soybean' | 'pulses' | 'vegetables' | 'fruits' | 'spices' | 'other')[];
-    soil_type: 'clay' | 'loam' | 'sandy' | 'red' | 'black' | 'alluvial' | 'laterite' | '';
-    region_type: 'rainfed' | 'irrigated' | '';
-    sms_notifications: boolean;
-    email_notifications: boolean;
-    app_notifications: boolean;
-    gemini_api_key: string;
-    kaggle_api_key: string;
-    huggingface_api_key: string;
-  }>({
+  const [formData, setFormData] = useState({
     full_name: '',
     district: '',
     state: '',
-    preferred_language: 'english',
-    crop_types: [],
+    preferred_language: 'english' as const,
+    crop_types: [] as string[],
     soil_type: '',
     region_type: '',
     sms_notifications: true,
@@ -89,32 +76,37 @@ export default function ProfileSetup() {
     huggingface_api_key: '',
   });
 
-  // Redirect if user is not authenticated
-  if (!user && !loading) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  // Show loading while we fetch user data
+  // Loading state - show spinner while auth is loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your profile...</p>
+        </div>
       </div>
     );
   }
 
-  // Redirect if profile is already completed (only after loading is done)
-  if (profile?.profile_completed && !loading) {
+  // Redirect if user is not authenticated
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Redirect if profile is already completed
+  if (profile?.profile_completed) {
     return <Navigate to="/" replace />;
   }
 
+  // Initialize form data from profile when available
   useEffect(() => {
     if (profile) {
+      console.log('Initializing form data from profile:', profile);
       setFormData({
         full_name: profile.full_name || '',
         district: profile.district || '',
         state: profile.state || '',
-        preferred_language: profile.preferred_language || 'english',
+        preferred_language: (profile.preferred_language as any) || 'english',
         crop_types: profile.crop_types || [],
         soil_type: profile.soil_type || '',
         region_type: profile.region_type || '',
@@ -125,8 +117,14 @@ export default function ProfileSetup() {
         kaggle_api_key: profile.kaggle_api_key || '',
         huggingface_api_key: profile.huggingface_api_key || '',
       });
+    } else if (user && !profile) {
+      // Set default values if no profile exists yet
+      setFormData(prev => ({
+        ...prev,
+        full_name: user.email?.split('@')[0] || ''
+      }));
     }
-  }, [profile]);
+  }, [profile, user]);
 
   const detectLocation = async () => {
     if (!navigator.geolocation) {
@@ -143,8 +141,6 @@ export default function ProfileSetup() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          // Note: In a real app, you'd use a geocoding service to get state/district
-          // For now, we'll just show that location was detected
           toast({
             title: "Location detected",
             description: "Please select your state and district manually for now.",
@@ -172,12 +168,11 @@ export default function ProfileSetup() {
   };
 
   const handleCropTypeChange = (cropType: string, checked: boolean) => {
-    const cropType2 = cropType as 'rice' | 'wheat' | 'sugarcane' | 'cotton' | 'maize' | 'soybean' | 'pulses' | 'vegetables' | 'fruits' | 'spices' | 'other';
     setFormData(prev => ({
       ...prev,
       crop_types: checked 
-        ? [...prev.crop_types, cropType2]
-        : prev.crop_types.filter(c => c !== cropType2)
+        ? [...prev.crop_types, cropType]
+        : prev.crop_types.filter(c => c !== cropType)
     }));
   };
 
@@ -187,10 +182,11 @@ export default function ProfileSetup() {
       
       // Auto-save progress
       if (user) {
-        const updateData: any = { ...formData };
-        if (updateData.soil_type === '') delete updateData.soil_type;
-        if (updateData.region_type === '') delete updateData.region_type;
-        await updateProfile(updateData);
+        try {
+          await updateProfile(formData as any);
+        } catch (error) {
+          console.error('Error auto-saving:', error);
+        }
       }
     }
   };
@@ -205,16 +201,20 @@ export default function ProfileSetup() {
     setIsSubmitting(true);
     
     try {
-      const updateData: any = { ...formData, profile_completed: true };
-      if (updateData.soil_type === '') delete updateData.soil_type;
-      if (updateData.region_type === '') delete updateData.region_type;
+      const updateData = {
+        ...formData,
+        profile_completed: true
+      };
+
+      console.log('Submitting profile data:', updateData);
       
-      const { error } = await updateProfile(updateData);
+      const { error } = await updateProfile(updateData as any);
       
       if (error) {
+        console.error('Profile update error:', error);
         toast({
           title: "Setup failed",
-          description: error.message,
+          description: error.message || "Failed to complete profile setup.",
           variant: "destructive",
         });
       } else {
@@ -225,6 +225,7 @@ export default function ProfileSetup() {
         navigate('/');
       }
     } catch (error) {
+      console.error('Profile update error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -234,14 +235,6 @@ export default function ProfileSetup() {
       setIsSubmitting(false);
     }
   };
-
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   const progress = (currentStep / STEPS.length) * 100;
 
@@ -282,11 +275,12 @@ export default function ProfileSetup() {
                 <div className="space-y-2">
                   <Label>Your Role</Label>
                   <div className="p-3 bg-muted rounded-lg">
-                    <p className="font-medium capitalize">{profile?.role}</p>
+                    <p className="font-medium capitalize">{profile?.role || 'farmer'}</p>
                     <p className="text-sm text-muted-foreground">
                       {profile?.role === 'farmer' && 'Get personalized farming advice and recommendations'}
                       {profile?.role === 'expert' && 'Provide expertise and support to farmers'}
                       {profile?.role === 'admin' && 'Manage users and system settings'}
+                      {!profile?.role && 'Get personalized farming advice and recommendations'}
                     </p>
                   </div>
                 </div>
@@ -349,12 +343,12 @@ export default function ProfileSetup() {
                   <Label>Crop Types (Select all that apply)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     {CROP_TYPES.map(crop => (
-                       <div key={crop} className="flex items-center space-x-2">
-                         <Checkbox
-                           id={crop}
-                           checked={formData.crop_types.includes(crop as any)}
-                           onCheckedChange={(checked) => handleCropTypeChange(crop, checked as boolean)}
-                         />
+                      <div key={crop} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={crop}
+                          checked={formData.crop_types.includes(crop)}
+                          onCheckedChange={(checked) => handleCropTypeChange(crop, checked as boolean)}
+                        />
                         <Label htmlFor={crop} className="capitalize cursor-pointer">
                           {crop}
                         </Label>
@@ -367,7 +361,7 @@ export default function ProfileSetup() {
                   <Label htmlFor="soil_type">Soil Type</Label>
                   <Select 
                     value={formData.soil_type} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, soil_type: value as any }))}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, soil_type: value }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select your soil type" />
@@ -386,7 +380,7 @@ export default function ProfileSetup() {
                   <Label htmlFor="region_type">Region Type</Label>
                   <Select 
                     value={formData.region_type} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, region_type: value as any }))}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, region_type: value }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select your region type" />

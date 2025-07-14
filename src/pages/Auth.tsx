@@ -23,22 +23,50 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // If user is already authenticated, redirect
+  // If user is already authenticated, check if profile is completed
   if (user && !loading) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/profile-setup" replace />;
   }
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 6;
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { error } = await signIn(email, password);
       
       if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Sign In Failed",
-          description: error.message,
+          description: error.message || "Please check your credentials and try again.",
           variant: "destructive",
         });
       } else {
@@ -48,6 +76,7 @@ export default function Auth() {
         });
       }
     } catch (error) {
+      console.error('Sign in error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -60,6 +89,24 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (password !== confirmPassword) {
       toast({
@@ -76,23 +123,41 @@ export default function Auth() {
       const userData = {
         role: selectedRole,
         phone_number: contactMethod === 'phone' ? phone : undefined,
+        full_name: email.split('@')[0], // Use email prefix as initial name
       };
 
       const { error } = await signUp(email, password, userData);
       
       if (error) {
-        toast({
-          title: "Sign Up Failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        console.error('Sign up error:', error);
+        
+        // Handle specific error cases
+        if (error.message?.includes('already registered')) {
+          toast({
+            title: "Account Already Exists",
+            description: "This email is already registered. Please sign in instead.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Sign Up Failed",
+            description: error.message || "Please try again with a different email.",
+            variant: "destructive",
+          });
+        }
       } else {
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account.",
+          description: "Welcome! Redirecting to profile setup...",
         });
+        
+        // Small delay to show success message
+        setTimeout(() => {
+          window.location.href = '/profile-setup';
+        }, 1000);
       }
     } catch (error) {
+      console.error('Sign up error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -102,6 +167,14 @@ export default function Auth() {
       setIsLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -132,6 +205,7 @@ export default function Auth() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -143,6 +217,7 @@ export default function Auth() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 <Button 
@@ -171,6 +246,7 @@ export default function Auth() {
                     value={selectedRole} 
                     onValueChange={(value) => setSelectedRole(value as any)}
                     className="grid grid-cols-1 gap-2"
+                    disabled={isLoading}
                   >
                     <div className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-muted/50">
                       <RadioGroupItem value="farmer" id="farmer" />
@@ -209,6 +285,7 @@ export default function Auth() {
                     value={contactMethod} 
                     onValueChange={(value) => setContactMethod(value as any)}
                     className="flex gap-4"
+                    disabled={isLoading}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="email" id="email-method" />
@@ -237,6 +314,7 @@ export default function Auth() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -249,6 +327,7 @@ export default function Auth() {
                       placeholder="Enter your phone number"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      disabled={isLoading}
                     />
                   </div>
                 )}
@@ -258,10 +337,11 @@ export default function Auth() {
                   <Input
                     id="signup-password"
                     type="password"
-                    placeholder="Create a password"
+                    placeholder="Create a password (min 6 characters)"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -274,6 +354,7 @@ export default function Auth() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
