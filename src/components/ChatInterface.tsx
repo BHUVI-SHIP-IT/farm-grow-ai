@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Mic, MicOff, User, Bot, Loader2 } from "lucide-react";
+import { Send, Mic, MicOff, User, Bot, Loader2, Sparkles, Lightbulb, Leaf } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -21,7 +22,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: "Hello! I'm your AI farming assistant. I can help you with agricultural advice, plant identification, and farming best practices. How can I help you today?",
+      content: "🌱 Welcome to your **AI Farm Assistant**! I'm here to help you with:\n\n🌾 **Crop Management** - Planting, growing, and harvesting advice\n🦠 **Disease & Pest Control** - Identify and treat plant issues\n🌡️ **Weather & Climate** - Seasonal planning and adaptation\n🌿 **Sustainable Practices** - Eco-friendly farming methods\n💰 **Market Insights** - Crop pricing and market trends\n\nWhat agricultural challenge can I help you solve today?",
       sender: 'bot',
       timestamp: new Date(),
     }
@@ -61,9 +62,6 @@ export function ChatInterface() {
       // Get API key and model from localStorage
       const openRouterKey = localStorage.getItem("openRouterKey");
       const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
-      
-      console.log("Chat Debug - API key found:", !!openRouterKey);
-      console.log("Chat Debug - Selected model:", selectedModel);
       
       if (!openRouterKey || openRouterKey.trim() === "") {
         const errorMessage: Message = {
@@ -162,67 +160,103 @@ export function ChatInterface() {
   };
 
   return (
-    <Card className="h-[600px] flex flex-col">
-      {/* Chat Header */}
-      <div className="p-4 border-b bg-gradient-to-r from-leaf-light to-sun-light">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <Bot className="w-4 h-4 text-white" />
+    <div className="h-[700px] flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border shadow-xl">
+      {/* Enhanced Chat Header */}
+      <div className="p-6 border-b bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-teal-500/10 rounded-t-xl">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
           </div>
-          <div>
-            <h3 className="font-semibold text-foreground">AI Farm Assistant</h3>
-            <p className="text-sm text-muted-foreground">Your agricultural expert</p>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-foreground bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              AI Farm Assistant Pro
+            </h3>
+            <p className="text-sm text-muted-foreground flex items-center gap-1">
+              <Leaf className="w-3 h-3" />
+              Your intelligent agricultural companion
+            </p>
           </div>
-          <Badge variant="secondary" className="ml-auto">Online</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              AI Ready
+            </Badge>
+          </div>
         </div>
       </div>
 
-      {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        <div className="space-y-4">
+      {/* Enhanced Messages Area */}
+      <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
+        <div className="space-y-6">
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex gap-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.sender === 'bot' && (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                  <Bot className="w-4 h-4 text-white" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
+                  <Bot className="w-5 h-5 text-white" />
                 </div>
               )}
               
               <div
-                className={`max-w-[80%] rounded-lg p-3 ${
+                className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${
                   message.sender === 'user'
-                    ? 'bg-primary text-primary-foreground ml-auto'
-                    : 'bg-muted'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white ml-auto'
+                    : 'bg-white border border-gray-100 shadow-md'
                 }`}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
-                <p className={`text-xs mt-1 ${
-                  message.sender === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                <div className={`prose prose-sm max-w-none ${
+                  message.sender === 'user' 
+                    ? 'prose-invert' 
+                    : 'prose-emerald'
+                }`}>
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      ul: ({ children }) => <ul className="my-2 space-y-1">{children}</ul>,
+                      li: ({ children }) => <li className="flex items-start gap-2">{children}</li>,
+                      h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-base font-semibold mb-2">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-semibold mb-1">{children}</h3>,
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+                <p className={`text-xs mt-2 ${
+                  message.sender === 'user' ? 'text-white/70' : 'text-gray-500'
                 }`}>
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
 
               {message.sender === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-1">
-                  <User className="w-4 h-4 text-white" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
+                  <User className="w-5 h-5 text-white" />
                 </div>
               )}
             </div>
           ))}
           
           {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                <Bot className="w-4 h-4 text-white" />
+            <div className="flex gap-4 justify-start">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-lg">
+                <Bot className="w-5 h-5 text-white" />
               </div>
-              <div className="bg-muted rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm text-muted-foreground">Thinking...</span>
+              <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-md">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
+                  <span className="text-sm text-gray-600">Analyzing your question...</span>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -230,45 +264,65 @@ export function ChatInterface() {
         </div>
       </ScrollArea>
 
-      {/* Input Area */}
-      <div className="p-4 border-t bg-muted/30">
-        <div className="flex gap-2">
-          <div className="flex-1">
+      {/* Enhanced Input Area */}
+      <div className="p-6 border-t bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-b-xl">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
             <Textarea
-              placeholder="Ask about farming, crop care, or describe your agricultural challenge..."
+              placeholder="Ask me anything about farming: crop diseases, planting schedules, soil health, pest control..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              rows={2}
-              className="min-h-[60px] resize-none"
+              rows={3}
+              className="min-h-[80px] resize-none rounded-xl border-2 border-gray-200 focus:border-emerald-400 focus:ring-emerald-400 text-base p-4"
               disabled={isLoading}
             />
+            <div className="absolute bottom-3 right-3 flex items-center gap-2">
+              <Badge variant="outline" className="text-xs bg-white/80">
+                <Lightbulb className="w-3 h-3 mr-1" />
+                Pro Tips
+              </Badge>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <Button
               onClick={handleVoiceInput}
               variant={isListening ? "destructive" : "outline"}
-              size="icon"
+              size="lg"
               disabled={isLoading}
-              className="flex-shrink-0"
+              className="h-[60px] w-[60px] rounded-xl shadow-sm"
             >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {isListening ? (
+                <MicOff className="w-5 h-5" />
+              ) : (
+                <Mic className="w-5 h-5" />
+              )}
             </Button>
             <Button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
-              variant="farmer"
-              size="icon"
-              className="flex-shrink-0"
+              className="h-[60px] w-[60px] rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg"
+              size="lg"
             >
-              <Send className="w-4 h-4" />
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-2 text-center">
-          Press Enter to send • Click mic for voice input
-        </p>
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-xs text-gray-500 flex items-center gap-1">
+            <Sparkles className="w-3 h-3" />
+            Press Enter to send • Use voice input for hands-free operation
+          </p>
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <span>AI Model: {localStorage.getItem("selectedModel")?.split("/").pop() || "Ready"}</span>
+          </div>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }

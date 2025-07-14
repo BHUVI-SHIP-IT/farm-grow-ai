@@ -24,28 +24,29 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("chat");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sun-light via-background to-leaf-light">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+      {/* Enhanced Header */}
+      <header className="bg-white/95 backdrop-blur-sm border-b shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-leaf to-earth flex items-center justify-center">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Sprout className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">FarmAI Assistant</h1>
-                <p className="text-sm text-muted-foreground">Your AI-powered farming companion</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  FarmAI Assistant Pro
+                </h1>
+                <p className="text-sm text-gray-600">Intelligent Agricultural Companion</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="hidden sm:flex">
-                <Globe className="w-3 h-3 mr-1" />
-                Multi-language Support
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                AI Powered
               </Badge>
-              <Badge variant="secondary" className="hidden sm:flex">
-                <Smartphone className="w-3 h-3 mr-1" />
-                Mobile Friendly
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                v2.0 Pro
               </Badge>
             </div>
           </div>
@@ -55,33 +56,39 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-12 px-4">
         <div className="container mx-auto text-center">
-          <div className="max-w-3xl mx-auto space-y-6">
-            <h2 className="text-4xl md:text-6xl font-bold text-foreground">
-              Smart Farming Made 
-              <span className="text-primary block mt-2">Simple</span>
+          <div className="max-w-4xl mx-auto space-y-8">
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
+              Transform Your <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Agricultural Journey</span>
             </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              Get personalized agricultural advice, identify plants instantly, and access expert knowledge 
-              tailored to your farm's needs. Powered by AI, designed for farmers everywhere.
+            <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+              Get expert agricultural advice, identify plant diseases, optimize crop yields, and make data-driven farming decisions with our advanced AI assistant powered by cutting-edge technology.
             </p>
             
-            {/* Feature Pills */}
-            <div className="flex flex-wrap justify-center gap-3 mt-8">
-              <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border">
-                <MessageSquare className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">AI Chat Assistant</span>
+            {/* Enhanced Feature Pills */}
+            <div className="flex flex-wrap justify-center gap-4 mt-12">
+              <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 border shadow-sm hover:shadow-md transition-all">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-medium text-gray-700">🌾 Smart Chat Assistant</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border">
-                <Camera className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">Plant Identification</span>
+              <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 border shadow-sm hover:shadow-md transition-all">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Camera className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-medium text-gray-700">📸 Plant Identification</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border">
-                <Leaf className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">Care Recommendations</span>
+              <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 border shadow-sm hover:shadow-md transition-all">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                  <Leaf className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-medium text-gray-700">🌿 Expert Care Tips</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border">
-                <Heart className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">Free to Use</span>
+              <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 border shadow-sm hover:shadow-md transition-all">
+                <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-medium text-gray-700">💝 Always Free</span>
               </div>
             </div>
           </div>
@@ -107,27 +114,56 @@ const Index = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="chat" className="space-y-6">
-              <div className="text-center space-y-2">
-                <h3 className="text-2xl font-bold">Chat with Your AI Farm Expert</h3>
-                <p className="text-muted-foreground">
-                  Ask questions about crops, soil, weather, pests, or any farming challenge
+            <TabsContent value="chat" className="space-y-8">
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <MessageSquare className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    Chat with Your AI Farm Expert
+                  </h3>
+                </div>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Ask detailed questions about crops, soil health, weather patterns, pest control, or any farming challenge. 
+                  Get comprehensive, expert-level advice in seconds.
                 </p>
               </div>
               <ChatInterface />
             </TabsContent>
 
-            <TabsContent value="identify" className="space-y-6">
-              <div className="text-center space-y-2">
-                <h3 className="text-2xl font-bold">Identify Plants & Get Care Tips</h3>
-                <p className="text-muted-foreground">
-                  Upload a photo to identify plants and receive personalized care instructions
+            <TabsContent value="identify" className="space-y-8">
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Camera className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Identify Plants & Get Care Tips
+                  </h3>
+                </div>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Upload a photo to instantly identify plants, detect diseases, and receive personalized care instructions 
+                  tailored to your specific growing conditions.
                 </p>
               </div>
               <PlantIdentification />
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-6">
+            <TabsContent value="settings" className="space-y-8">
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Settings className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-600 to-gray-700 bg-clip-text text-transparent">
+                    Configuration & API Settings
+                  </h3>
+                </div>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Configure your API keys and select your preferred AI models for the best farming assistance experience.
+                </p>
+              </div>
               <SettingsComponent />
             </TabsContent>
           </Tabs>
