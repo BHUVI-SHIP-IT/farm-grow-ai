@@ -51,6 +51,7 @@ const INDIAN_STATES = [
 
 export default function ProfileSetup() {
   const { user, profile, updateProfile, loading } = useAuth();
+  console.log('ProfileSetup - user:', user?.id, 'profile:', profile, 'loading:', loading);
   const { toast } = useToast();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
