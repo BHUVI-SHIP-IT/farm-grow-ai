@@ -93,7 +93,16 @@ export default function ProfileSetup() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect if profile is already completed
+  // Show loading while we fetch user data
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Redirect if profile is already completed (only after loading is done)
   if (profile?.profile_completed && !loading) {
     return <Navigate to="/" replace />;
   }
@@ -225,7 +234,7 @@ export default function ProfileSetup() {
     }
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
