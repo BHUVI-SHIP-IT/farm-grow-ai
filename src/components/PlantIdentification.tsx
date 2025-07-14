@@ -64,37 +64,150 @@ export function PlantIdentification() {
         body: formData
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to plant identification service. Please check your internet connection.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      // Map response to existing UI structure
+      if (data.error) {
+        toast({
+          title: "Identification Failed",
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Enhanced mapping with better care categorization
+      const careInstructions = data.careInstructions || "Follow general plant care guidelines";
       const mappedResult: PlantResult = {
         name: data.plantName,
         confidence: data.confidence,
-        health: data.confidence > 70 ? "healthy" : "nutrient-deficiency" as const,
+        health: determineHealthStatus(data.confidence, data.healthStatus),
         care: {
-          watering: data.careInstructions,
-          sunlight: "Ensure adequate sunlight based on plant type",
-          fertilizer: "Use appropriate fertilizer for this plant species",
-          pruning: "Follow standard pruning practices for optimal growth"
+          watering: extractWateringAdvice(careInstructions),
+          sunlight: extractSunlightAdvice(careInstructions),
+          fertilizer: extractFertilizerAdvice(careInstructions),
+          pruning: extractPruningAdvice(careInstructions)
         },
-        recommendations: data.careInstructions ? [data.careInstructions] : ["Follow general plant care guidelines"]
+        recommendations: generateSmartRecommendations(data.plantName, data.confidence, careInstructions)
       };
 
       setResult(mappedResult);
       
+      // Save to database for user history
+      await saveToHistory(data);
+      
       toast({
-        title: "Analysis Complete",
-        description: `Identified as ${mappedResult.name} with ${mappedResult.confidence}% confidence.`,
+        title: "Plant Identified!",
+        description: `${mappedResult.name} identified with ${mappedResult.confidence}% confidence.`,
       });
     } catch (error) {
       console.error('Error analyzing plant:', error);
       toast({
         title: "Analysis Failed",
-        description: "Please check your Hugging Face API key in Settings and try again.",
+        description: "An unexpected error occurred. Please try again with a clearer image.",
         variant: "destructive",
       });
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  // Helper functions for better data extraction
+  const determineHealthStatus = (confidence: number, healthStatus: string): PlantResult['health'] => {
+    if (confidence > 80) return 'healthy';
+    if (confidence > 60) return 'nutrient-deficiency';
+    if (healthStatus?.toLowerCase().includes('low')) return 'nutrient-deficiency';
+    return 'healthy';
+  };
+
+  const extractWateringAdvice = (instructions: string): string => {
+    const waterKeywords = ['water', 'moisture', 'watering', 'irrigation'];
+    const sentences = instructions.split('.').filter(s => 
+      waterKeywords.some(keyword => s.toLowerCase().includes(keyword))
+    );
+    return sentences[0]?.trim() || "Water regularly based on soil moisture level";
+  };
+
+  const extractSunlightAdvice = (instructions: string): string => {
+    const sunKeywords = ['sun', 'light', 'shade', 'sunlight'];
+    const sentences = instructions.split('.').filter(s => 
+      sunKeywords.some(keyword => s.toLowerCase().includes(keyword))
+    );
+    return sentences[0]?.trim() || "Provide appropriate sunlight based on plant type";
+  };
+
+  const extractFertilizerAdvice = (instructions: string): string => {
+    const fertilizerKeywords = ['fertilizer', 'feed', 'nutrition', 'nutrients'];
+    const sentences = instructions.split('.').filter(s => 
+      fertilizerKeywords.some(keyword => s.toLowerCase().includes(keyword))
+    );
+    return sentences[0]?.trim() || "Use balanced fertilizer during growing season";
+  };
+
+  const extractPruningAdvice = (instructions: string): string => {
+    const pruningKeywords = ['prune', 'trim', 'harvest', 'deadhead'];
+    const sentences = instructions.split('.').filter(s => 
+      pruningKeywords.some(keyword => s.toLowerCase().includes(keyword))
+    );
+    return sentences[0]?.trim() || "Prune dead or damaged parts as needed";
+  };
+
+  const generateSmartRecommendations = (plantName: string, confidence: number, instructions: string): string[] => {
+    const recommendations = [];
+    
+    if (confidence < 70) {
+      recommendations.push("Consider taking a clearer photo for better identification");
+    }
+    
+    // Extract key recommendations from instructions
+    const sentences = instructions.split('.').filter(s => s.trim().length > 10);
+    recommendations.push(...sentences.slice(0, 3).map(s => s.trim()));
+    
+    // Add plant-specific tips
+    const lowerName = plantName.toLowerCase();
+    if (lowerName.includes('succulent') || lowerName.includes('cactus')) {
+      recommendations.push("Allow soil to dry completely between waterings");
+    } else if (lowerName.includes('herb')) {
+      recommendations.push("Harvest regularly to encourage new growth");
+    } else if (lowerName.includes('vegetable')) {
+      recommendations.push("Monitor for pests during growing season");
+    }
+    
+    return recommendations.filter(r => r.length > 5).slice(0, 5);
+  };
+
+  const saveToHistory = async (data: any) => {
+    try {
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // Skip saving if user is not authenticated
+        return;
+      }
+
+      const { error } = await supabase
+        .from('plant_identifications')
+        .insert({
+          user_id: user.id,
+          plant_name: data.plantName,
+          confidence_score: data.confidence,
+          care_instructions: data.careInstructions,
+          health_status: data.healthStatus,
+        });
+      
+      if (error) {
+        console.error('Error saving to history:', error);
+      }
+    } catch (err) {
+      console.error('Failed to save identification:', err);
     }
   };
 
