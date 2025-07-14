@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { LoadingFallback } from '@/components/LoadingFallback';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,18 +13,35 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiresProfileSetup = false 
 }) => {
   const { user, profile, loading } = useAuth();
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+
+  useEffect(() => {
+    // Set a timeout for loading state
+    const timer = setTimeout(() => {
+      if (loading) {
+        setLoadingTimeout(true);
+        console.warn('ProtectedRoute loading timeout - possible auth issue');
+      }
+    }, 8000);
+
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   console.log('ProtectedRoute - loading:', loading, 'user:', !!user, 'profile:', !!profile);
 
-  if (loading) {
+  if (loading && !loadingTimeout) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
+      <LoadingFallback 
+        message="Authenticating..." 
+        timeout={8000}
+        onTimeout={() => setLoadingTimeout(true)}
+      />
     );
+  }
+
+  // If loading timed out, try to recover
+  if (loadingTimeout && !user) {
+    return <Navigate to="/auth" replace />;
   }
 
   if (!user) {
@@ -39,12 +56,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // If we require profile setup but don't have a profile yet, wait a bit
   if (requiresProfileSetup && !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading your profile...</p>
-        </div>
-      </div>
+      <LoadingFallback 
+        message="Loading your profile..." 
+        timeout={5000}
+        onTimeout={() => {
+          console.warn('Profile loading timeout - redirecting to profile setup');
+          window.location.href = '/profile-setup';
+        }}
+      />
     );
   }
 

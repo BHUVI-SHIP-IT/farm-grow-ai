@@ -79,10 +79,10 @@ export default function ProfileSetup() {
   // Loading state - show spinner while auth is loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your profile...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your profile...</p>
         </div>
       </div>
     );
@@ -180,12 +180,17 @@ export default function ProfileSetup() {
     if (currentStep < STEPS.length) {
       setCurrentStep(prev => prev + 1);
       
-      // Auto-save progress
+      // Auto-save progress with timeout
       if (user) {
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          
           await updateProfile(formData as any);
+          clearTimeout(timeoutId);
         } catch (error) {
           console.error('Error auto-saving:', error);
+          // Don't block progression for auto-save failures
         }
       }
     }
@@ -198,7 +203,19 @@ export default function ProfileSetup() {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return; // Prevent double submission
+    
     setIsSubmitting(true);
+    
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsSubmitting(false);
+      toast({
+        title: "Timeout Error",
+        description: "Profile setup is taking too long. Please try again.",
+        variant: "destructive",
+      });
+    }, 10000); // 10 second timeout
     
     try {
       const updateData = {
@@ -209,6 +226,9 @@ export default function ProfileSetup() {
       console.log('Submitting profile data:', updateData);
       
       const { error } = await updateProfile(updateData as any);
+      
+      // Clear timeout since we got a response
+      clearTimeout(timeoutId);
       
       if (error) {
         console.error('Profile update error:', error);
@@ -222,12 +242,14 @@ export default function ProfileSetup() {
           title: "Profile completed!",
           description: "Welcome to your personalized agricultural assistant.",
         });
-        // Use a small delay to ensure state updates, then navigate to dashboard
+        
+        // Force navigation after a brief delay
         setTimeout(() => {
           navigate('/dashboard');
-        }, 500);
+        }, 1000);
       }
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Profile update error:', error);
       toast({
         title: "Error",
@@ -510,17 +532,18 @@ export default function ProfileSetup() {
                 <Button 
                   onClick={handleSubmit}
                   disabled={isSubmitting}
+                  className="min-w-[140px]"
                 >
                   {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Completing...
-                    </>
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Completing...</span>
+                    </div>
                   ) : (
-                    <>
-                      <Check className="h-4 w-4 mr-2" />
-                      Complete Setup
-                    </>
+                    <div className="flex items-center gap-2">
+                      <Check className="h-4 w-4" />
+                      <span>Complete Setup</span>
+                    </div>
                   )}
                 </Button>
               )}

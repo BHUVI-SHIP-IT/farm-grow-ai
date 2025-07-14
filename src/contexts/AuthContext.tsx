@@ -254,6 +254,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Updating profile with data:', updates);
       
+      // Set a timeout for the update operation
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      
       // Use upsert to handle both insert and update cases
       const { data, error } = await supabase
         .from('profiles')
@@ -266,6 +270,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
         .select()
         .single();
+
+      clearTimeout(timeoutId);
 
       if (error) {
         console.error('Profile update error:', error);
@@ -280,6 +286,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: null };
     } catch (error) {
       console.error('Profile update exception:', error);
+      if (error.name === 'AbortError') {
+        return { error: new Error('Profile update timed out. Please try again.') };
+      }
       return { error };
     }
   };
