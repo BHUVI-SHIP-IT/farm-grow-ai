@@ -104,26 +104,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile data when user is authenticated
-          let profileData = await fetchProfile(session.user.id);
-          
-          // If no profile exists, create one (fallback in case trigger didn't work)
-          if (!profileData) {
-            console.log('No profile found, creating one...');
-            profileData = await createInitialProfile(session.user.id, session.user.email || '');
+          try {
+            // Fetch profile data when user is authenticated
+            let profileData = await fetchProfile(session.user.id);
+            
+            // If no profile exists, create one (fallback in case trigger didn't work)
+            if (!profileData) {
+              console.log('No profile found, creating one...');
+              profileData = await createInitialProfile(session.user.id, session.user.email || '');
+            }
+            
+            setProfile(profileData);
+          } catch (error) {
+            console.error('Error handling auth state change:', error);
+            setProfile(null);
           }
-          
-          setProfile(profileData);
         } else {
           setProfile(null);
         }
         
-        // Only set loading to false after everything is done
+        // Always set loading to false after processing
         setLoading(false);
       }
     );
 
-    // Check for existing session
+    // Check for existing session immediately
     const initializeAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -140,15 +145,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          let profileData = await fetchProfile(session.user.id);
-          
-          // If no profile exists, create one
-          if (!profileData) {
-            console.log('No profile found during init, creating one...');
-            profileData = await createInitialProfile(session.user.id, session.user.email || '');
+          try {
+            let profileData = await fetchProfile(session.user.id);
+            
+            // If no profile exists, create one
+            if (!profileData) {
+              console.log('No profile found during init, creating one...');
+              profileData = await createInitialProfile(session.user.id, session.user.email || '');
+            }
+            
+            setProfile(profileData);
+          } catch (error) {
+            console.error('Error fetching profile during init:', error);
+            setProfile(null);
           }
-          
-          setProfile(profileData);
         }
         
         setLoading(false);
@@ -167,27 +177,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
-      // Don't set loading to false here - let auth state change handle it
       return { error };
     } catch (error) {
-      setLoading(false);
       return { error };
     }
   };
 
   const signUp = async (email: string, password: string, userData?: any) => {
-    setLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/profile-setup`;
       
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -196,10 +202,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
       
-      // Don't set loading to false here - let auth state change handle it
       return { error };
     } catch (error) {
-      setLoading(false);
       return { error };
     }
   };

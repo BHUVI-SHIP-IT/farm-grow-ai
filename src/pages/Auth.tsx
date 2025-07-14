@@ -23,8 +23,20 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Show loading first, then redirect if user is authenticated
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   // If user is already authenticated, redirect based on profile status
-  if (user && !loading) {
+  if (user) {
     if (profile?.profile_completed) {
       return <Navigate to="/dashboard" replace />;
     } else {
@@ -168,17 +180,6 @@ export default function Auth() {
     }
   };
 
-  // Show loading spinner only briefly
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4">
