@@ -18,8 +18,10 @@ export const LanguageSelectionPage: React.FC = () => {
     localStorage.setItem('literacyStatus', isLiterate ? 'literate' : 'illiterate');
     
     if (isLiterate) {
-      navigate('/profile-setup');
+      // Literate users need to sign in first
+      navigate('/auth');
     } else {
+      // Illiterate users go directly to voice chat (no sign-in needed)
       navigate('/voice-chat');
     }
   };

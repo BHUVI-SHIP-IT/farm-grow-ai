@@ -33,11 +33,13 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Public routes - no authentication required */}
             <Route path="/language-selection" element={<LanguageSelectionPage />} />
             <Route path="/voice-chat" element={<VoiceChatPage />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/auth-redirect" element={<AuthRedirect />} />
             <Route path="/" element={<AuthRedirect />} />
+            
+            {/* Authentication required routes */}
+            <Route path="/auth" element={<Auth />} />
             <Route path="/profile-setup" element={
               <ProtectedRoute>
                 <ProfileSetup />

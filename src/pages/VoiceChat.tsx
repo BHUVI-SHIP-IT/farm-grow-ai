@@ -26,17 +26,17 @@ export const VoiceChatPage: React.FC = () => {
           className="bg-white/90 backdrop-blur-sm"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+          Change Language
         </Button>
         
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate('/profile-setup')}
+          onClick={() => navigate('/auth')}
           className="bg-white/90 backdrop-blur-sm"
         >
           <Settings className="w-4 h-4 mr-2" />
-          Setup Profile
+          Sign In
         </Button>
       </div>
 

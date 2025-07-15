@@ -8,29 +8,37 @@ export const AuthRedirect: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user has completed language selection
-    const selectedLanguage = localStorage.getItem('selectedLanguage');
-    
-    // Force redirect after a short delay if loading takes too long
     const timer = setTimeout(() => {
+      // Check if language selection is completed
+      const selectedLanguage = localStorage.getItem('selectedLanguage');
+      const literacyStatus = localStorage.getItem('literacyStatus');
+      
       if (!selectedLanguage) {
         navigate('/language-selection', { replace: true });
         return;
       }
 
-      if (user && profile) {
-        if (profile.profile_completed) {
-          navigate('/dashboard', { replace: true });
-        } else {
-          const literacyStatus = localStorage.getItem('literacyStatus');
-          if (literacyStatus === 'illiterate') {
-            navigate('/voice-chat', { replace: true });
-          } else {
-            navigate('/profile-setup', { replace: true });
-          }
-        }
-      } else if (!user) {
+      // If illiterate, go to voice chat (no authentication needed)
+      if (literacyStatus === 'illiterate') {
+        navigate('/voice-chat', { replace: true });
+        return;
+      }
+
+      // If literate but not authenticated, go to auth page
+      if (!user) {
         navigate('/auth', { replace: true });
+        return;
+      }
+
+      // If authenticated but profile not completed, go to profile setup
+      if (user && (!profile || !profile.profile_completed)) {
+        navigate('/profile-setup', { replace: true });
+        return;
+      }
+
+      // If everything is completed, go to dashboard
+      if (user && profile?.profile_completed) {
+        navigate('/dashboard', { replace: true });
       }
     }, 1000);
 
@@ -42,29 +50,31 @@ export const AuthRedirect: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
         <div className="text-center">
           <Loader2 className="h-6 w-6 animate-spin text-emerald-600 mx-auto mb-3" />
-          <p className="text-sm text-gray-600">Redirecting...</p>
+          <p className="text-sm text-gray-600">Setting up your experience...</p>
         </div>
       </div>
     );
   }
 
-  // Check language selection first
+  // Immediate redirects without loading state
   const selectedLanguage = localStorage.getItem('selectedLanguage');
+  const literacyStatus = localStorage.getItem('literacyStatus');
+
   if (!selectedLanguage) {
     return <Navigate to="/language-selection" replace />;
   }
 
-  if (user && profile) {
-    if (profile.profile_completed) {
-      return <Navigate to="/dashboard" replace />;
-    } else {
-      const literacyStatus = localStorage.getItem('literacyStatus');
-      if (literacyStatus === 'illiterate') {
-        return <Navigate to="/voice-chat" replace />;
-      }
-      return <Navigate to="/profile-setup" replace />;
-    }
+  if (literacyStatus === 'illiterate') {
+    return <Navigate to="/voice-chat" replace />;
   }
 
-  return <Navigate to="/auth" replace />;
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (user && (!profile || !profile.profile_completed)) {
+    return <Navigate to="/profile-setup" replace />;
+  }
+
+  return <Navigate to="/dashboard" replace />;
 };
