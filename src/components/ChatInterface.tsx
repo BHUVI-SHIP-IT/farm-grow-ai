@@ -381,44 +381,90 @@ I can provide advice specific to your location, crops, and farming conditions. W
               >
                 <div className={`prose prose-sm max-w-none ${
                   message.sender === 'user' 
-                    ? 'prose-invert' 
+                    ? 'prose-invert text-white' 
                     : 'prose-slate'
                 }`}>
                   <ReactMarkdown
                     components={{
+                      // Enhanced paragraph rendering
                       p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed text-sm">{children}</p>,
+                      
+                      // Enhanced text formatting
                       strong: ({ children }) => <strong className="font-bold text-emerald-700">{children}</strong>,
                       em: ({ children }) => <em className="italic text-emerald-600">{children}</em>,
+                      
+                      // Enhanced lists
                       ul: ({ children }) => <ul className="my-3 ml-4 space-y-2 list-disc marker:text-emerald-500">{children}</ul>,
                       ol: ({ children }) => <ol className="my-3 ml-4 space-y-2 list-decimal marker:text-emerald-500">{children}</ol>,
                       li: ({ children }) => <li className="text-sm leading-relaxed pl-2">{children}</li>,
-                      h1: ({ children }) => <h1 className="text-lg font-bold mb-3 text-emerald-800 border-b border-emerald-200 pb-2">{children}</h1>,
-                      h2: ({ children }) => <h2 className="text-base font-bold mb-3 text-emerald-700">{children}</h2>,
-                      h3: ({ children }) => <h3 className="text-sm font-semibold mb-2 text-emerald-600">{children}</h3>,
-                      h4: ({ children }) => <h4 className="text-sm font-medium mb-2 text-gray-700">{children}</h4>,
+                      
+                      // Enhanced headings with icons
+                      h1: ({ children }) => (
+                        <h1 className="text-lg font-bold mb-3 text-emerald-800 border-b border-emerald-200 pb-2 flex items-center gap-2">
+                          <span className="text-emerald-600">🌾</span>{children}
+                        </h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="text-base font-bold mb-3 text-emerald-700 flex items-center gap-2">
+                          <span className="text-emerald-500">📋</span>{children}
+                        </h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-sm font-semibold mb-2 text-emerald-600 flex items-center gap-2">
+                          <span className="text-emerald-400">▶</span>{children}
+                        </h3>
+                      ),
+                      h4: ({ children }) => (
+                        <h4 className="text-sm font-medium mb-2 text-gray-700 flex items-center gap-1">
+                          <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>{children}
+                        </h4>
+                      ),
+                      
+                      // Enhanced blockquotes
                       blockquote: ({ children }) => (
-                        <blockquote className="border-l-4 border-emerald-300 pl-4 py-2 my-3 bg-emerald-50 italic text-emerald-800">
+                        <blockquote className="border-l-4 border-emerald-300 pl-4 py-2 my-3 bg-emerald-50 italic text-emerald-800 rounded-r-lg">
+                          <span className="text-emerald-600 text-lg mr-2">💡</span>
                           {children}
                         </blockquote>
                       ),
+                      
+                      // COMPLETELY REDESIGNED TABLE RENDERING
                       table: ({ children }) => (
-                        <div className="overflow-x-auto my-4">
-                          <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto my-6 rounded-lg border border-emerald-200 shadow-sm">
+                          <table className="min-w-full bg-white">
                             {children}
                           </table>
                         </div>
                       ),
-                      thead: ({ children }) => <thead className="bg-emerald-50">{children}</thead>,
-                      th: ({ children }) => <th className="px-4 py-3 text-left text-xs font-semibold text-emerald-800 uppercase tracking-wider border-b border-gray-200">{children}</th>,
-                      td: ({ children }) => <td className="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">{children}</td>,
-                      tr: ({ children }) => <tr className="hover:bg-gray-50">{children}</tr>,
+                      thead: ({ children }) => (
+                        <thead className="bg-gradient-to-r from-emerald-500 to-green-600 text-white">
+                          {children}
+                        </thead>
+                      ),
+                      th: ({ children }) => (
+                        <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-r border-emerald-400 last:border-r-0">
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children }) => (
+                        <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-100 border-r border-gray-200 last:border-r-0">
+                          {children}
+                        </td>
+                      ),
+                      tr: ({ children }) => (
+                        <tr className="hover:bg-emerald-50 transition-colors duration-150">
+                          {children}
+                        </tr>
+                      ),
+                      
+                      // Enhanced code blocks
                       code: ({ children }) => (
-                        <code className="bg-gray-100 text-emerald-700 px-2 py-1 rounded text-xs font-mono">
+                        <code className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-mono border">
                           {children}
                         </code>
                       ),
                       pre: ({ children }) => (
-                        <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto my-3 text-sm">
+                        <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto my-3 text-sm border border-gray-200">
                           {children}
                         </pre>
                       ),
@@ -463,23 +509,23 @@ I can provide advice specific to your location, crops, and farming conditions. W
         </div>
       </ScrollArea>
 
-      {/* Enhanced Input Area */}
-      <div className="p-6 border-t bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-b-xl">
+      {/* ENHANCED FARMER-FRIENDLY INPUT AREA */}
+      <div className="p-6 border-t bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 rounded-b-xl">
         <div className="flex gap-3">
           <div className="flex-1 relative">
             <Textarea
-              placeholder="Ask me anything about farming: crop diseases, planting schedules, soil health, pest control..."
+              placeholder="🌾 Ask me anything about farming: diseases, planting, soil health, weather, market prices..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               rows={3}
-              className="min-h-[80px] resize-none rounded-xl border-2 border-gray-200 focus:border-emerald-400 focus:ring-emerald-400 text-base p-4"
+              className="min-h-[80px] resize-none rounded-xl border-2 border-emerald-200 focus:border-emerald-400 focus:ring-emerald-400 text-base p-4 bg-white/80 backdrop-blur-sm"
               disabled={isLoading}
             />
             <div className="absolute bottom-3 right-3 flex items-center gap-2">
-              <Badge variant="outline" className="text-xs bg-white/80">
+              <Badge variant="outline" className="text-xs bg-white/90 text-emerald-700 border-emerald-200">
                 <Lightbulb className="w-3 h-3 mr-1" />
-                Pro Tips
+                Farmer Tips
               </Badge>
             </div>
           </div>
@@ -489,8 +535,8 @@ I can provide advice specific to your location, crops, and farming conditions. W
               variant={voiceCommands.isListening ? "destructive" : "outline"}
               size="lg"
               disabled={isLoading || !voiceCommands.isSupported}
-              className="h-[60px] w-[60px] rounded-xl shadow-sm"
-              title={voiceCommands.isSupported ? "Click to use voice input" : "Voice input not supported"}
+              className="h-[60px] w-[60px] rounded-xl shadow-sm border-2 border-emerald-200 hover:border-emerald-300"
+              title={voiceCommands.isSupported ? "🎤 Speak your farming question" : "Voice input not supported"}
             >
               {voiceCommands.isListening ? (
                 <MicOff className="w-5 h-5" />
@@ -499,15 +545,14 @@ I can provide advice specific to your location, crops, and farming conditions. W
               )}
             </Button>
             {voiceCommands.isListening && (
-              <Badge variant="secondary" className="absolute -top-8 left-0 bg-red-100 text-red-700">
-                Listening...
-              </Badge>
+              <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
             )}
             <Button
               onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-              className="h-[60px] w-[60px] rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg"
+              disabled={isLoading || !inputMessage.trim()}
               size="lg"
+              className="h-[60px] w-[60px] rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg border-0 disabled:opacity-50"
+              title="🚀 Send your farming question"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -517,15 +562,66 @@ I can provide advice specific to your location, crops, and farming conditions. W
             </Button>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-3">
-          <p className="text-xs text-gray-500 flex items-center gap-1">
-            <Sparkles className="w-3 h-3" />
-            Press Enter to send • Use voice input for hands-free operation
-          </p>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            <span>AI Model: {localStorage.getItem("selectedModel")?.split("/").pop() || "Ready"}</span>
-          </div>
+        
+        {/* FARMER-FRIENDLY QUICK TIPS */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Badge 
+            variant="secondary" 
+            className="text-xs bg-emerald-100 text-emerald-700 border-emerald-200 cursor-pointer hover:bg-emerald-200 transition-colors animate-fade-in"
+            onClick={() => setInputMessage("What crops grow best in my soil type?")}
+          >
+            🌱 Crop Selection
+          </Badge>
+          <Badge 
+            variant="secondary" 
+            className="text-xs bg-blue-100 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-200 transition-colors animate-fade-in"
+            onClick={() => setInputMessage("How do I identify plant diseases?")}
+            style={{ animationDelay: '0.1s' }}
+          >
+            🦠 Disease Help
+          </Badge>
+          <Badge 
+            variant="secondary" 
+            className="text-xs bg-orange-100 text-orange-700 border-orange-200 cursor-pointer hover:bg-orange-200 transition-colors animate-fade-in"
+            onClick={() => setInputMessage("What are current market prices?")}
+            style={{ animationDelay: '0.2s' }}
+          >
+            💰 Market Prices
+          </Badge>
+          <Badge 
+            variant="secondary" 
+            className="text-xs bg-purple-100 text-purple-700 border-purple-200 cursor-pointer hover:bg-purple-200 transition-colors animate-fade-in"
+            onClick={() => setInputMessage("Weather forecast for farming")}
+            style={{ animationDelay: '0.3s' }}
+          >
+            🌤️ Weather Info
+          </Badge>
+          <Badge 
+            variant="secondary" 
+            className="text-xs bg-yellow-100 text-yellow-700 border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors animate-fade-in"
+            onClick={() => setInputMessage("Best fertilizers for my crops")}
+            style={{ animationDelay: '0.4s' }}
+          >
+            🌿 Fertilizers
+          </Badge>
+        </div>
+        
+        {/* HELPFUL INSTRUCTIONS */}
+        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+              Press Enter to send
+            </span>
+            <span className="flex items-center gap-1">
+              <Mic className="w-3 h-3" />
+              Voice input available
+            </span>
+          </span>
+          <span className="text-emerald-600 font-medium flex items-center gap-1">
+            <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+            AI Model: {localStorage.getItem("selectedModel")?.split("/")[1]?.split(":")[0] || "deepseek"}
+          </span>
         </div>
       </div>
     </div>
