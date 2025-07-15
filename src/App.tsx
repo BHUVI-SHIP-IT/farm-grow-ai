@@ -10,6 +10,9 @@ import Auth from "./pages/Auth";
 import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import Community from "./pages/Community";
+import Analytics from "./pages/Analytics";
+import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
 import { AuthRedirect } from "./components/AuthRedirect";
 
@@ -38,6 +41,21 @@ const App = () => (
             <Route path="/settings" element={
               <ProtectedRoute requiresProfileSetup>
                 <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/community" element={
+              <ProtectedRoute requiresProfileSetup>
+                <Community />
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute requiresProfileSetup>
+                <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/calendar" element={
+              <ProtectedRoute requiresProfileSetup>
+                <Calendar />
               </ProtectedRoute>
             } />
             <Route path="/" element={

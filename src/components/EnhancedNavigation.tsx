@@ -11,7 +11,9 @@ import {
   User,
   BarChart3,
   Users,
-  Sprout
+  Sprout,
+  Calendar,
+  Bell
 } from 'lucide-react';
 
 interface NavItem {
@@ -46,6 +48,24 @@ export const EnhancedNavigation: React.FC = () => {
       roles: ['farmer', 'expert', 'admin']
     },
     {
+      name: 'Community',
+      href: '/community',
+      icon: Users,
+      roles: ['farmer', 'expert', 'admin']
+    },
+    {
+      name: 'Analytics',
+      href: '/analytics',
+      icon: BarChart3,
+      roles: ['farmer', 'expert', 'admin']
+    },
+    {
+      name: 'Calendar',
+      href: '/calendar',
+      icon: Calendar,
+      roles: ['farmer', 'expert', 'admin']
+    },
+    {
       name: 'Expert Console',
       href: '/expert/console',
       icon: Users,
@@ -56,12 +76,6 @@ export const EnhancedNavigation: React.FC = () => {
       name: 'User Management',
       href: '/admin/users',
       icon: Users,
-      roles: ['admin']
-    },
-    {
-      name: 'Analytics',
-      href: '/admin/analytics',
-      icon: BarChart3,
       roles: ['admin']
     },
     {

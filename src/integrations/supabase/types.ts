@@ -73,6 +73,257 @@ export type Database = {
           },
         ]
       }
+      community_posts: {
+        Row: {
+          category: string
+          comments_count: number | null
+          content: string
+          created_at: string
+          id: string
+          images: string[] | null
+          is_resolved: boolean | null
+          likes_count: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          comments_count?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          is_resolved?: boolean | null
+          likes_count?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          comments_count?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          is_resolved?: boolean | null
+          likes_count?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      crop_calendar: {
+        Row: {
+          activity_type: string
+          completed: boolean | null
+          created_at: string
+          crop_type: string
+          id: string
+          notes: string | null
+          scheduled_date: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          completed?: boolean | null
+          created_at?: string
+          crop_type: string
+          id?: string
+          notes?: string | null
+          scheduled_date: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          completed?: boolean | null
+          created_at?: string
+          crop_type?: string
+          id?: string
+          notes?: string | null
+          scheduled_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      expert_network: {
+        Row: {
+          bio: string | null
+          created_at: string
+          experience_years: number | null
+          id: string
+          is_verified: boolean | null
+          location: string | null
+          rating: number | null
+          specialization: string
+          total_consultations: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          rating?: number | null
+          specialization: string
+          total_consultations?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          rating?: number | null
+          specialization?: string
+          total_consultations?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      farm_activities: {
+        Row: {
+          activity_date: string
+          activity_type: string
+          cost: number | null
+          created_at: string
+          description: string | null
+          farm_record_id: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_date: string
+          activity_type: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          farm_record_id?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          activity_type?: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          farm_record_id?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farm_activities_farm_record_id_fkey"
+            columns: ["farm_record_id"]
+            isOneToOne: false
+            referencedRelation: "farm_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farm_records: {
+        Row: {
+          actual_yield: number | null
+          created_at: string
+          crop_type: string
+          expected_yield: number | null
+          field_size: number | null
+          harvest_date: string | null
+          id: string
+          investment_cost: number | null
+          notes: string | null
+          planting_date: string | null
+          profit: number | null
+          revenue: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_yield?: number | null
+          created_at?: string
+          crop_type: string
+          expected_yield?: number | null
+          field_size?: number | null
+          harvest_date?: string | null
+          id?: string
+          investment_cost?: number | null
+          notes?: string | null
+          planting_date?: string | null
+          profit?: number | null
+          revenue?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_yield?: number | null
+          created_at?: string
+          crop_type?: string
+          expected_yield?: number | null
+          field_size?: number | null
+          harvest_date?: string | null
+          id?: string
+          investment_cost?: number | null
+          notes?: string | null
+          planting_date?: string | null
+          profit?: number | null
+          revenue?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          priority: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          priority?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          priority?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       plant_identifications: {
         Row: {
           care_instructions: string | null
@@ -105,6 +356,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      post_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_expert_response: boolean | null
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_expert_response?: boolean | null
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_expert_response?: boolean | null
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
