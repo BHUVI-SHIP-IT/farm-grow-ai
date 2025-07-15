@@ -163,7 +163,10 @@ export const VoiceChatInterface: React.FC<VoiceChatInterfaceProps> = ({ selected
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-green-700 mb-2">KissanAI</h1>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mb-4 shadow-lg">
+            <span className="text-white text-2xl">🌱</span>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">Grow Smart AI</h1>
           <p className="text-xl text-green-600">Agriculture CoPilot for India</p>
         </div>
 
