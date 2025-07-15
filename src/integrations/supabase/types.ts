@@ -938,6 +938,7 @@ export type Database = {
           id: string
           kaggle_api_key: string | null
           last_active: string | null
+          literacy_status: string | null
           location: string | null
           phone_number: string | null
           preferred_language:
@@ -967,6 +968,7 @@ export type Database = {
           id?: string
           kaggle_api_key?: string | null
           last_active?: string | null
+          literacy_status?: string | null
           location?: string | null
           phone_number?: string | null
           preferred_language?:
@@ -996,6 +998,7 @@ export type Database = {
           id?: string
           kaggle_api_key?: string | null
           last_active?: string | null
+          literacy_status?: string | null
           location?: string | null
           phone_number?: string | null
           preferred_language?:
@@ -1215,6 +1218,12 @@ export type Database = {
         | "marathi"
         | "gujarati"
         | "bengali"
+        | "punjabi"
+        | "malayalam"
+        | "spanish"
+        | "portuguese"
+        | "japanese"
+        | "indonesian"
       region_type: "rainfed" | "irrigated"
       soil_type:
         | "clay"
@@ -1374,6 +1383,12 @@ export const Constants = {
         "marathi",
         "gujarati",
         "bengali",
+        "punjabi",
+        "malayalam",
+        "spanish",
+        "portuguese",
+        "japanese",
+        "indonesian",
       ],
       region_type: ["rainfed", "irrigated"],
       soil_type: [

@@ -8,14 +8,29 @@ export const AuthRedirect: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if user has completed language selection
+    const selectedLanguage = localStorage.getItem('selectedLanguage');
+    
     // Force redirect after a short delay if loading takes too long
     const timer = setTimeout(() => {
+      if (!selectedLanguage) {
+        navigate('/language-selection', { replace: true });
+        return;
+      }
+
       if (user && profile) {
         if (profile.profile_completed) {
           navigate('/dashboard', { replace: true });
         } else {
-          navigate('/profile-setup', { replace: true });
+          const literacyStatus = localStorage.getItem('literacyStatus');
+          if (literacyStatus === 'illiterate') {
+            navigate('/voice-chat', { replace: true });
+          } else {
+            navigate('/profile-setup', { replace: true });
+          }
         }
+      } else if (!user) {
+        navigate('/auth', { replace: true });
       }
     }, 1000);
 
@@ -33,10 +48,20 @@ export const AuthRedirect: React.FC = () => {
     );
   }
 
+  // Check language selection first
+  const selectedLanguage = localStorage.getItem('selectedLanguage');
+  if (!selectedLanguage) {
+    return <Navigate to="/language-selection" replace />;
+  }
+
   if (user && profile) {
     if (profile.profile_completed) {
       return <Navigate to="/dashboard" replace />;
     } else {
+      const literacyStatus = localStorage.getItem('literacyStatus');
+      if (literacyStatus === 'illiterate') {
+        return <Navigate to="/voice-chat" replace />;
+      }
       return <Navigate to="/profile-setup" replace />;
     }
   }

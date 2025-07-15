@@ -16,6 +16,8 @@ import Community from "./pages/Community";
 import Analytics from "./pages/Analytics";
 import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
+import { LanguageSelectionPage } from "./pages/LanguageSelection";
+import { VoiceChatPage } from "./pages/VoiceChat";
 import { AuthRedirect } from "./components/AuthRedirect";
 import { ChatInterface } from "./components/ChatInterface";
 import { PlantIdentification } from "./components/PlantIdentification";
@@ -31,8 +33,11 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            <Route path="/language-selection" element={<LanguageSelectionPage />} />
+            <Route path="/voice-chat" element={<VoiceChatPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth-redirect" element={<AuthRedirect />} />
+            <Route path="/" element={<AuthRedirect />} />
             <Route path="/profile-setup" element={
               <ProtectedRoute>
                 <ProfileSetup />
