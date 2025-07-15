@@ -35,30 +35,20 @@ serve(async (req) => {
 
     // Enhanced request to kissan.ai with proper language support
     const makeRequest = async (attempt: number = 1): Promise<Response> => {
+      // Simplified request body that matches kissan.ai expectations
       const requestBody = {
         message: question.trim(),
-        language: language || 'english',
-        lang: language || 'english', // Additional language parameter
-        locale: languageConfig?.code || language || 'en',
-        user_language: languageConfig?.nativeName || language,
-        response_language: language,
-        context: 'agriculture_advice',
-        conversation_id: conversationId,
-        timestamp: new Date().toISOString(),
-        // Explicit instruction to respond in native language
-        instruction: `Please respond in ${languageConfig?.nativeName || language} language only`
+        language: language || 'english'
       };
 
-      console.log(`[${conversationId}] Attempt ${attempt} - Sending request to kissan.ai with language: ${language}`);
+      console.log(`[${conversationId}] Attempt ${attempt} - Sending request to kissan.ai:`, requestBody);
 
       const response = await fetch('https://kissan.ai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'GrowSmartAI-CoPilot/2.0',
           'Accept': 'application/json',
-          'Accept-Language': languageConfig?.code || language || 'en',
-          'X-Requested-With': 'XMLHttpRequest'
+          'User-Agent': 'Mozilla/5.0 (compatible; GrowSmartAI/1.0)'
         },
         body: JSON.stringify(requestBody),
         signal: AbortSignal.timeout(30000) // 30 second timeout
@@ -93,8 +83,11 @@ serve(async (req) => {
     const data = await response.json().catch(async () => {
       // If JSON parsing fails, try to get text response
       const textResponse = await response.text();
+      console.log(`[${conversationId}] Raw text response:`, textResponse);
       return { response: textResponse };
     });
+    
+    console.log(`[${conversationId}] Parsed response data:`, data);
     
     // Extract and enhance the response
     let responseText = '';
@@ -110,8 +103,14 @@ serve(async (req) => {
       responseText = data.reply;
     } else if (data.text) {
       responseText = data.text;
+    } else if (data.content) {
+      responseText = data.content;
+    } else if (data.data && typeof data.data === 'string') {
+      responseText = data.data;
+    } else if (data.data && data.data.response) {
+      responseText = data.data.response;
     } else {
-      console.warn(`[${conversationId}] Unexpected response format:`, data);
+      console.warn(`[${conversationId}] Unexpected response format:`, JSON.stringify(data, null, 2));
       responseText = 'I received your question about farming. Let me help you with some general agricultural advice. Please try asking your question again for more specific guidance.';
     }
 
