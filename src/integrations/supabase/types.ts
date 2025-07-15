@@ -73,6 +73,136 @@ export type Database = {
           },
         ]
       }
+      comment_reactions: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_reactions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_events: {
+        Row: {
+          created_at: string
+          created_by: string
+          current_participants: number
+          description: string | null
+          end_time: string
+          event_type: string
+          group_id: string | null
+          id: string
+          is_online: boolean
+          location: string | null
+          max_participants: number | null
+          start_time: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          current_participants?: number
+          description?: string | null
+          end_time: string
+          event_type: string
+          group_id?: string | null
+          id?: string
+          is_online?: boolean
+          location?: string | null
+          max_participants?: number | null
+          start_time: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          current_participants?: number
+          description?: string | null
+          end_time?: string
+          event_type?: string
+          group_id?: string | null
+          id?: string
+          is_online?: boolean
+          location?: string | null
+          max_participants?: number | null
+          start_time?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_events_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          crop_type: string | null
+          description: string | null
+          id: string
+          is_private: boolean
+          member_count: number
+          name: string
+          region: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          crop_type?: string | null
+          description?: string | null
+          id?: string
+          is_private?: boolean
+          member_count?: number
+          name: string
+          region?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          crop_type?: string | null
+          description?: string | null
+          id?: string
+          is_private?: boolean
+          member_count?: number
+          name?: string
+          region?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       community_posts: {
         Row: {
           category: string
@@ -118,6 +248,44 @@ export type Database = {
         }
         Relationships: []
       }
+      consultation_reviews: {
+        Row: {
+          consultation_id: string
+          created_at: string
+          id: string
+          is_public: boolean
+          rating: number
+          review_text: string | null
+          reviewer_id: string
+        }
+        Insert: {
+          consultation_id: string
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          rating: number
+          review_text?: string | null
+          reviewer_id: string
+        }
+        Update: {
+          consultation_id?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          rating?: number
+          review_text?: string | null
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_reviews_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "expert_consultations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crop_calendar: {
         Row: {
           activity_type: string
@@ -148,6 +316,36 @@ export type Database = {
           notes?: string | null
           scheduled_date?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      direct_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          message_type: string
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          message_type?: string
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          message_type?: string
+          recipient_id?: string
+          sender_id?: string
         }
         Relationships: []
       }
@@ -242,6 +440,100 @@ export type Database = {
           treatment_type?: string
         }
         Relationships: []
+      }
+      event_participants: {
+        Row: {
+          event_id: string
+          id: string
+          registered_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          registered_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          registered_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "community_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_consultations: {
+        Row: {
+          client_id: string
+          consultation_type: string
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          expert_id: string
+          id: string
+          meeting_url: string | null
+          notes: string | null
+          payment_status: string | null
+          price: number | null
+          scheduled_time: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          consultation_type: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          expert_id: string
+          id?: string
+          meeting_url?: string | null
+          notes?: string | null
+          payment_status?: string | null
+          price?: number | null
+          scheduled_time?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          consultation_type?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          expert_id?: string
+          id?: string
+          meeting_url?: string | null
+          notes?: string | null
+          payment_status?: string | null
+          price?: number | null
+          scheduled_time?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_consultations_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "expert_network"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expert_network: {
         Row: {
@@ -376,6 +668,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -529,6 +853,76 @@ export type Database = {
           },
         ]
       }
+      post_media: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          id: string
+          media_type: string
+          media_url: string
+          post_id: string
+          thumbnail_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          media_type: string
+          media_url: string
+          post_id: string
+          thumbnail_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          media_type?: string
+          media_url?: string
+          post_id?: string
+          thumbnail_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           app_notifications: boolean | null
@@ -658,6 +1052,69 @@ export type Database = {
           outbreak_description?: string | null
           prevention_measures?: string | null
           region?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_name: string
+          badge_type: string
+          description: string | null
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_name: string
+          badge_type: string
+          description?: string | null
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_name?: string
+          badge_type?: string
+          description?: string | null
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_reputation: {
+        Row: {
+          best_answers: number
+          created_at: string
+          helpful_answers: number
+          id: string
+          level: number
+          posts_count: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_answers?: number
+          created_at?: string
+          helpful_answers?: number
+          id?: string
+          level?: number
+          posts_count?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_answers?: number
+          created_at?: string
+          helpful_answers?: number
+          id?: string
+          level?: number
+          posts_count?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
