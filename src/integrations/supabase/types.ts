@@ -151,6 +151,98 @@ export type Database = {
         }
         Relationships: []
       }
+      disease_history: {
+        Row: {
+          application_date: string | null
+          created_at: string
+          disease_id: string
+          follow_up_image_url: string | null
+          id: string
+          progress_notes: string | null
+          recovery_status: string | null
+          treatment_applied: string | null
+          user_id: string
+        }
+        Insert: {
+          application_date?: string | null
+          created_at?: string
+          disease_id: string
+          follow_up_image_url?: string | null
+          id?: string
+          progress_notes?: string | null
+          recovery_status?: string | null
+          treatment_applied?: string | null
+          user_id: string
+        }
+        Update: {
+          application_date?: string | null
+          created_at?: string
+          disease_id?: string
+          follow_up_image_url?: string | null
+          id?: string
+          progress_notes?: string | null
+          recovery_status?: string | null
+          treatment_applied?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disease_history_disease_id_fkey"
+            columns: ["disease_id"]
+            isOneToOne: false
+            referencedRelation: "plant_diseases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disease_treatments: {
+        Row: {
+          active_ingredient: string | null
+          application_method: string | null
+          cost_per_treatment: number | null
+          created_at: string
+          disease_name: string
+          dosage: string | null
+          effectiveness_rating: number | null
+          frequency: string | null
+          id: string
+          organic: boolean | null
+          timing: string | null
+          treatment_name: string
+          treatment_type: string
+        }
+        Insert: {
+          active_ingredient?: string | null
+          application_method?: string | null
+          cost_per_treatment?: number | null
+          created_at?: string
+          disease_name: string
+          dosage?: string | null
+          effectiveness_rating?: number | null
+          frequency?: string | null
+          id?: string
+          organic?: boolean | null
+          timing?: string | null
+          treatment_name: string
+          treatment_type: string
+        }
+        Update: {
+          active_ingredient?: string | null
+          application_method?: string | null
+          cost_per_treatment?: number | null
+          created_at?: string
+          disease_name?: string
+          dosage?: string | null
+          effectiveness_rating?: number | null
+          frequency?: string | null
+          id?: string
+          organic?: boolean | null
+          timing?: string | null
+          treatment_name?: string
+          treatment_type?: string
+        }
+        Relationships: []
+      }
       expert_network: {
         Row: {
           bio: string | null
@@ -324,6 +416,51 @@ export type Database = {
         }
         Relationships: []
       }
+      plant_diseases: {
+        Row: {
+          affected_parts: string[] | null
+          confidence_score: number | null
+          created_at: string
+          disease_name: string
+          disease_type: string
+          id: string
+          image_url: string | null
+          plant_name: string | null
+          severity_level: string | null
+          symptoms_detected: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affected_parts?: string[] | null
+          confidence_score?: number | null
+          created_at?: string
+          disease_name: string
+          disease_type: string
+          id?: string
+          image_url?: string | null
+          plant_name?: string | null
+          severity_level?: string | null
+          symptoms_detected?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affected_parts?: string[] | null
+          confidence_score?: number | null
+          created_at?: string
+          disease_name?: string
+          disease_type?: string
+          id?: string
+          image_url?: string | null
+          plant_name?: string | null
+          severity_level?: string | null
+          symptoms_detected?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       plant_identifications: {
         Row: {
           care_instructions: string | null
@@ -479,6 +616,48 @@ export type Database = {
           state?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      regional_disease_alerts: {
+        Row: {
+          affected_crops: string[] | null
+          alert_date: string
+          alert_level: string | null
+          created_at: string
+          created_by: string | null
+          disease_name: string
+          expires_at: string | null
+          id: string
+          outbreak_description: string | null
+          prevention_measures: string | null
+          region: string
+        }
+        Insert: {
+          affected_crops?: string[] | null
+          alert_date: string
+          alert_level?: string | null
+          created_at?: string
+          created_by?: string | null
+          disease_name: string
+          expires_at?: string | null
+          id?: string
+          outbreak_description?: string | null
+          prevention_measures?: string | null
+          region: string
+        }
+        Update: {
+          affected_crops?: string[] | null
+          alert_date?: string
+          alert_level?: string | null
+          created_at?: string
+          created_by?: string | null
+          disease_name?: string
+          expires_at?: string | null
+          id?: string
+          outbreak_description?: string | null
+          prevention_measures?: string | null
+          region?: string
         }
         Relationships: []
       }

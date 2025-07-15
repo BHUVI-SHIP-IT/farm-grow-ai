@@ -11,7 +11,8 @@ import {
   Users,
   Calendar,
   Bell,
-  Sprout
+  Sprout,
+  Bug
 } from 'lucide-react';
 import {
   Sidebar,
@@ -31,6 +32,7 @@ const items = [
   { title: 'Dashboard', url: '/dashboard', icon: Home, roles: ['farmer', 'expert', 'admin'] },
   { title: 'Chat Assistant', url: '/chat', icon: MessageSquare, roles: ['farmer', 'expert', 'admin'] },
   { title: 'Plant ID', url: '/identify', icon: Camera, roles: ['farmer', 'expert', 'admin'] },
+  { title: 'Disease Detection', url: '/disease-identification', icon: Bug, roles: ['farmer', 'expert', 'admin'], badge: 'New' },
   { title: 'Community', url: '/community', icon: Users, roles: ['farmer', 'expert', 'admin'] },
   { title: 'Analytics', url: '/analytics', icon: BarChart3, roles: ['farmer', 'expert', 'admin'] },
   { title: 'Calendar', url: '/calendar', icon: Calendar, roles: ['farmer', 'expert', 'admin'] },
@@ -97,7 +99,16 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
                       <item.icon className="h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      {!isCollapsed && (
+                        <div className="flex items-center justify-between w-full">
+                          <span>{item.title}</span>
+                          {item.badge && (
+                            <Badge variant="secondary" className="text-xs ml-2">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

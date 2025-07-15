@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import { AuthRedirect } from "./components/AuthRedirect";
 import { ChatInterface } from "./components/ChatInterface";
 import { PlantIdentification } from "./components/PlantIdentification";
+import { PlantDiseaseIdentification } from "./components/PlantDiseaseIdentification";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,11 @@ const App = () => (
                           <Route path="/identify" element={
                             <div className="container mx-auto p-6">
                               <PlantIdentification />
+                            </div>
+                          } />
+                          <Route path="/disease-identification" element={
+                            <div className="container mx-auto p-6">
+                              <PlantDiseaseIdentification />
                             </div>
                           } />
                           <Route path="/community" element={<Community />} />
