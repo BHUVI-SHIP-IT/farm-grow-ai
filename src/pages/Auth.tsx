@@ -38,7 +38,7 @@ export default function Auth() {
 
   // If user is already authenticated, redirect based on profile status
   if (user) {
-    console.log('User authenticated, profile completed:', profile?.profile_completed);
+    // Check profile completion status
     if (profile?.profile_completed) {
       return <Navigate to="/dashboard" replace />;
     } else {
@@ -81,7 +81,7 @@ export default function Auth() {
       const { error } = await signIn(email, password);
       
       if (error) {
-        console.error('Sign in error:', error);
+        // Sign in failed
         toast({
           title: "Sign In Failed",
           description: error.message || "Please check your credentials and try again.",
@@ -94,7 +94,7 @@ export default function Auth() {
         });
       }
     } catch (error) {
-      console.error('Sign in error:', error);
+      // Unexpected sign in error
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -147,7 +147,7 @@ export default function Auth() {
       const { error } = await signUp(email, password, userData);
       
       if (error) {
-        console.error('Sign up error:', error);
+        // Sign up failed
         
         // Handle specific error cases
         if (error.message?.includes('already registered')) {
@@ -171,7 +171,7 @@ export default function Auth() {
         // Don't use window.location.href - let the auth state change handle navigation
       }
     } catch (error) {
-      console.error('Sign up error:', error);
+      // Unexpected sign up error
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",

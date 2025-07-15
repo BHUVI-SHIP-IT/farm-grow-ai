@@ -35,8 +35,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
-      console.log('Fetching profile for user:', userId);
-      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -46,14 +44,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         if (error.code === 'PGRST116') {
           // No profile found, this is expected for new users
-          console.log('No profile found for user:', userId);
           return null;
         }
         console.error('Error fetching profile:', error);
         return null;
       }
       
-      console.log('Profile fetched successfully:', data);
       return data;
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -70,15 +66,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const createInitialProfile = async (userId: string, email: string) => {
     try {
-      console.log('Creating initial profile for:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .insert({
           user_id: userId,
-          full_name: email,
+          full_name: email.split('@')[0] || email,
           role: 'farmer',
           preferred_language: 'english',
-          profile_completed: false
+          profile_completed: false,
+          sms_notifications: true,
+          email_notifications: true,
+          app_notifications: true
         })
         .select()
         .single();
@@ -88,7 +86,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return null;
       }
 
-      console.log('Profile created:', data);
       return data;
     } catch (error) {
       console.error('Error creating profile:', error);
@@ -99,88 +96,75 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
 
-    console.log('Initializing auth...');
-
-    // Set up auth state listener
+    // Set up auth state listener with timeout protection
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
-        
         if (!mounted) return;
 
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          try {
-            // Fetch profile data when user is authenticated
-            console.log('Fetching profile for authenticated user');
-            let profileData = await fetchProfile(session.user.id);
-            
-            // If no profile exists, create one (fallback in case trigger didn't work)
-            if (!profileData) {
-              console.log('No profile found, creating one...');
-              profileData = await createInitialProfile(session.user.id, session.user.email || '');
+        // Use timeout to prevent deadlocks
+        setTimeout(async () => {
+          if (!mounted) return;
+          
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            try {
+              let profileData = await fetchProfile(session.user.id);
+              
+              if (!profileData) {
+                profileData = await createInitialProfile(session.user.id, session.user.email || '');
+              }
+              
+              if (mounted) setProfile(profileData);
+            } catch (error) {
+              console.error('Error handling auth state change:', error);
+              if (mounted) setProfile(null);
             }
-            
-            setProfile(profileData);
-            console.log('Profile set:', profileData);
-          } catch (error) {
-            console.error('Error handling auth state change:', error);
+          } else {
             setProfile(null);
           }
-        } else {
-          setProfile(null);
-        }
-        
-        // Always set loading to false after processing
-        setLoading(false);
-        console.log('Auth loading set to false');
+          
+          if (mounted) setLoading(false);
+        }, 0);
       }
     );
 
     // Check for existing session immediately
     const initializeAuth = async () => {
       try {
-        console.log('Initializing auth...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Error getting session:', error);
-          setLoading(false);
+          if (mounted) setLoading(false);
           return;
         }
 
         if (!mounted) return;
 
-        console.log('Session found:', !!session);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           try {
-            console.log('Fetching profile during init');
             let profileData = await fetchProfile(session.user.id);
             
-            // If no profile exists, create one
             if (!profileData) {
-              console.log('No profile found during init, creating one...');
               profileData = await createInitialProfile(session.user.id, session.user.email || '');
             }
             
-            setProfile(profileData);
-            console.log('Profile set during init:', profileData);
+            if (mounted) setProfile(profileData);
           } catch (error) {
             console.error('Error fetching profile during init:', error);
-            setProfile(null);
+            if (mounted) setProfile(null);
           }
         }
         
-        setLoading(false);
-        console.log('Auth initialization complete - loading set to false');
+        if (mounted) setLoading(false);
       } catch (error) {
         console.error('Error initializing auth:', error);
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
@@ -240,14 +224,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      console.log('Updating profile with data:', updates);
-      
-      // Use upsert to handle both insert and update cases
+      // Clean the updates object
+      const cleanedUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, value]) => {
+          if (typeof value === 'string') return value.trim() !== '';
+          if (Array.isArray(value)) return value.length > 0;
+          return value !== null && value !== undefined;
+        })
+      );
+
       const { data, error } = await supabase
         .from('profiles')
         .upsert({ 
           user_id: user.id, 
-          ...updates,
+          ...cleanedUpdates,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
@@ -259,12 +249,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Profile update error:', error);
         return { error };
       }
-
-      console.log('Profile updated successfully:', data);
       
-      // Update local state immediately
       setProfile(data);
-      
       return { error: null };
     } catch (error) {
       console.error('Profile update exception:', error);

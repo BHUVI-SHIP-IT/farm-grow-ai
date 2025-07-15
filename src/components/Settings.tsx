@@ -77,7 +77,7 @@ export const SettingsComponent = () => {
         description: "API keys saved successfully!",
       });
     } catch (error) {
-      console.error("Save API keys error:", error);
+      // API key save failed
       toast({
         title: "Error", 
         description: error instanceof Error ? error.message : "Failed to save API keys. Please check your OpenRouter API key.",

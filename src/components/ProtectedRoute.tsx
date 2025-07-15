@@ -15,13 +15,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, profile, loading } = useAuth();
   const [timeoutReached, setTimeoutReached] = useState(false);
 
-  console.log('ProtectedRoute - loading:', loading, 'user:', !!user, 'profile:', !!profile);
+  // Debug info only in development
 
   // Set a timeout for loading to prevent infinite loading
   useEffect(() => {
     const timer = setTimeout(() => {
       if (loading) {
-        console.warn('ProtectedRoute loading timeout - possible auth issue');
+        // Auth timeout reached
         setTimeoutReached(true);
       }
     }, 8000); // 8 second timeout

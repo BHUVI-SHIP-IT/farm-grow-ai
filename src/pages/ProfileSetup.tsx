@@ -57,7 +57,7 @@ export default function ProfileSetup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
-  console.log('ProfileSetup render - user:', user?.id, 'profile:', profile, 'loading:', loading);
+  // Profile setup state tracking
 
   // Form state
   const [formData, setFormData] = useState({
@@ -101,7 +101,7 @@ export default function ProfileSetup() {
   // Initialize form data from profile when available
   useEffect(() => {
     if (profile) {
-      console.log('Initializing form data from profile:', profile);
+      // Initialize form with existing profile data
       setFormData({
         full_name: profile.full_name || '',
         district: profile.district || '',
@@ -189,7 +189,7 @@ export default function ProfileSetup() {
           await updateProfile(formData as any);
           clearTimeout(timeoutId);
         } catch (error) {
-          console.error('Error auto-saving:', error);
+          // Auto-save failed, but don't block progression
           // Don't block progression for auto-save failures
         }
       }
@@ -235,12 +235,12 @@ export default function ProfileSetup() {
         preferred_language: cleanFormData.preferred_language || 'english'
       };
 
-      console.log('Submitting clean profile data:', updateData);
+      // Submitting profile data
       
       const { error } = await updateProfile(updateData as any);
       
       if (error) {
-        console.error('Profile update error:', error);
+        // Profile update failed
         toast({
           title: "Setup failed", 
           description: error.message || "Failed to complete profile setup. Please try again.",
@@ -256,7 +256,7 @@ export default function ProfileSetup() {
         navigate('/dashboard', { replace: true });
       }
     } catch (error) {
-      console.error('Profile update error:', error);
+      // Unexpected error during profile update
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",

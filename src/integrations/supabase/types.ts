@@ -109,6 +109,7 @@ export type Database = {
       profiles: {
         Row: {
           app_notifications: boolean | null
+          avatar_url: string | null
           created_at: string
           crop_types: Database["public"]["Enums"]["crop_type"][] | null
           district: string | null
@@ -119,12 +120,14 @@ export type Database = {
           huggingface_api_key: string | null
           id: string
           kaggle_api_key: string | null
+          last_active: string | null
           location: string | null
           phone_number: string | null
           preferred_language:
             | Database["public"]["Enums"]["preferred_language"]
             | null
           profile_completed: boolean | null
+          profile_completion_date: string | null
           region_type: Database["public"]["Enums"]["region_type"] | null
           role: Database["public"]["Enums"]["user_role"] | null
           sms_notifications: boolean | null
@@ -135,6 +138,7 @@ export type Database = {
         }
         Insert: {
           app_notifications?: boolean | null
+          avatar_url?: string | null
           created_at?: string
           crop_types?: Database["public"]["Enums"]["crop_type"][] | null
           district?: string | null
@@ -145,12 +149,14 @@ export type Database = {
           huggingface_api_key?: string | null
           id?: string
           kaggle_api_key?: string | null
+          last_active?: string | null
           location?: string | null
           phone_number?: string | null
           preferred_language?:
             | Database["public"]["Enums"]["preferred_language"]
             | null
           profile_completed?: boolean | null
+          profile_completion_date?: string | null
           region_type?: Database["public"]["Enums"]["region_type"] | null
           role?: Database["public"]["Enums"]["user_role"] | null
           sms_notifications?: boolean | null
@@ -161,6 +167,7 @@ export type Database = {
         }
         Update: {
           app_notifications?: boolean | null
+          avatar_url?: string | null
           created_at?: string
           crop_types?: Database["public"]["Enums"]["crop_type"][] | null
           district?: string | null
@@ -171,12 +178,14 @@ export type Database = {
           huggingface_api_key?: string | null
           id?: string
           kaggle_api_key?: string | null
+          last_active?: string | null
           location?: string | null
           phone_number?: string | null
           preferred_language?:
             | Database["public"]["Enums"]["preferred_language"]
             | null
           profile_completed?: boolean | null
+          profile_completion_date?: string | null
           region_type?: Database["public"]["Enums"]["region_type"] | null
           role?: Database["public"]["Enums"]["user_role"] | null
           sms_notifications?: boolean | null
@@ -187,9 +196,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      user_stats: {
+        Row: {
+          all_roles: Database["public"]["Enums"]["user_role"][] | null
+          created_at: string | null
+          full_name: string | null
+          last_active: string | null
+          preferred_language:
+            | Database["public"]["Enums"]["preferred_language"]
+            | null
+          profile_completed: boolean | null
+          profile_completion_date: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          total_chats: number | null
+          total_plant_identifications: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_profile: {
@@ -212,6 +262,13 @@ export type Database = {
           created_at: string
           updated_at: string
         }[]
+      }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
       }
     }
     Enums: {

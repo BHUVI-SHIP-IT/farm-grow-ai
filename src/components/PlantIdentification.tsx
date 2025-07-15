@@ -65,7 +65,7 @@ export function PlantIdentification() {
       });
 
       if (error) {
-        console.error('Supabase function error:', error);
+        // Plant identification API error
         toast({
           title: "Connection Error",
           description: "Failed to connect to plant identification service. Please check your internet connection.",
@@ -108,7 +108,7 @@ export function PlantIdentification() {
         description: `${mappedResult.name} identified with ${mappedResult.confidence}% confidence.`,
       });
     } catch (error) {
-      console.error('Error analyzing plant:', error);
+      // Plant analysis failed
       toast({
         title: "Analysis Failed",
         description: "An unexpected error occurred. Please try again with a clearer image.",
@@ -204,10 +204,10 @@ export function PlantIdentification() {
         });
       
       if (error) {
-        console.error('Error saving to history:', error);
+        // Failed to save identification to history
       }
     } catch (err) {
-      console.error('Failed to save identification:', err);
+      // Identification save failed
     }
   };
 
