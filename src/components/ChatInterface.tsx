@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Mic, MicOff, User, Bot, Loader2, Sparkles, Lightbulb, Leaf } from "lucide-react";
+import { Send, Mic, MicOff, User, Bot, Loader2, Sparkles, Lightbulb, Leaf, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import useVoiceCommands from '@/hooks/useVoiceCommands';
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { SettingsComponent } from "@/components/Settings";
 
 interface Message {
   id: string;
@@ -24,6 +26,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { profile } = useAuth();
@@ -108,7 +111,7 @@ I can provide advice specific to your location, crops, and farming conditions. W
       if (!openRouterKey || openRouterKey.trim() === "") {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: "🔑 **API Key Required**\n\nPlease configure your OpenRouter API key in the **Settings** tab to start chatting with the AI.\n\n**Steps:**\n1. Go to Settings tab\n2. Enter your OpenRouter API key\n3. Save and fetch models\n4. Return here to chat!",
+          content: "🔑 **API Key Required**\n\nPlease configure your OpenRouter API key to start chatting with the AI.\n\n**Steps:**\n1. Click the Settings button (⚙️) in the chat header\n2. Enter your OpenRouter API key\n3. Save and fetch models\n4. Select a model and start chatting!",
           sender: 'bot',
           timestamp: new Date(),
         };
@@ -258,6 +261,22 @@ I can provide advice specific to your location, crops, and farming conditions. W
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+                <DialogHeader>
+                  <DialogTitle>Chat Settings</DialogTitle>
+                </DialogHeader>
+                <div className="overflow-y-auto">
+                  <SettingsComponent />
+                </div>
+              </DialogContent>
+            </Dialog>
             <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
               AI Ready
