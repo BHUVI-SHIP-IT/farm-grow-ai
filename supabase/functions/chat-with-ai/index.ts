@@ -102,19 +102,29 @@ Always prioritize practical, actionable advice that helps farmers succeed while 
       presence_penalty: 0.1,
     };
 
-    console.log('Calling OpenRouter API...');
+    console.log('Calling OpenRouter API with timeout protection...');
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://lovableproject.com',
-        'X-Title': 'AI Farm Assistant Pro',
-        'User-Agent': 'AI-Farm-Assistant/1.0'
-      },
-      body: JSON.stringify(requestPayload),
+    // Create a timeout promise that rejects after 25 seconds
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout - OpenRouter API took too long to respond')), 25000);
     });
+
+    // Race between the actual request and timeout
+    const response = await Promise.race([
+      fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://lovableproject.com',
+          'X-Title': 'AI Farm Assistant Pro',
+          'User-Agent': 'AI-Farm-Assistant/1.0'
+        },
+        body: JSON.stringify(requestPayload),
+        signal: AbortSignal.timeout(24000), // 24 second timeout
+      }),
+      timeoutPromise
+    ]) as Response;
 
     console.log('OpenRouter API response status:', response.status);
 

@@ -96,12 +96,15 @@ I can provide advice specific to your location, crops, and farming conditions. W
     setInputMessage("");
     setIsLoading(true);
 
+    // Create a unique loading message ID
+    const loadingId = `loading-${Date.now()}`;
+
     try {
       // Get API key and model from localStorage
       const openRouterKey = localStorage.getItem("openRouterKey");
       const selectedModel = localStorage.getItem("selectedModel") || "meta-llama/llama-3.2-3b-instruct:free";
       
-      console.log('Starting chat request...', { 
+      console.log('🚀 Starting robust chat request...', { 
         hasApiKey: !!openRouterKey, 
         model: selectedModel,
         messagePreview: currentMessage.substring(0, 50) + '...',
@@ -119,45 +122,92 @@ I can provide advice specific to your location, crops, and farming conditions. W
         return;
       }
 
-      // Show a more engaging loading state
+      // Show enhanced loading state
       const loadingMessage: Message = {
-        id: 'loading-temp',
-        content: '🤖 Analyzing your farming question and preparing expert advice...',
+        id: loadingId,
+        content: '🤖 **Processing your request...**\n\n⚡ Connecting to AI farm expert\n🧠 Analyzing your agricultural question\n📊 Preparing comprehensive response',
         sender: 'bot',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, loadingMessage]);
 
-      const { data, error } = await supabase.functions.invoke('chat-with-ai', {
-        body: {
-          message: currentMessage,
-          model: selectedModel,
-          apiKey: openRouterKey,
-          userContext: profile ? {
-            location: profile.location,
-            district: profile.district,
-            state: profile.state,
-            crop_types: profile.crop_types,
-            soil_type: profile.soil_type,
-            region_type: profile.region_type,
-            preferred_language: profile.preferred_language,
-            role: profile.role
-          } : null
-        }
-      });
+      // Enhanced retry logic with exponential backoff
+      let lastError: Error | null = null;
+      let response = null;
+      
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          console.log(`🔄 Attempt ${attempt}/3: Calling chat-with-ai function...`);
+          
+          // Update loading message for retry attempts
+          if (attempt > 1) {
+            setMessages(prev => prev.map(msg => 
+              msg.id === loadingId 
+                ? { ...msg, content: `🔄 **Retry Attempt ${attempt}/3**\n\n⚡ Reconnecting to AI service\n🧠 Processing your question\n📊 Please wait a moment...` }
+                : msg
+            ));
+          }
 
-      console.log('Chat response received:', { 
-        hasData: !!data, 
-        hasError: !!error,
-        dataKeys: data ? Object.keys(data) : [],
-        timestamp: new Date().toISOString()
-      });
+          // Create timeout promise for the entire operation
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timeout - Please try again')), 30000);
+          });
+
+          // Race between supabase call and timeout
+          const callPromise = supabase.functions.invoke('chat-with-ai', {
+            body: {
+              message: currentMessage,
+              model: selectedModel,
+              apiKey: openRouterKey,
+              userContext: profile ? {
+                location: profile.location,
+                district: profile.district,
+                state: profile.state,
+                crop_types: profile.crop_types,
+                soil_type: profile.soil_type,
+                region_type: profile.region_type,
+                preferred_language: profile.preferred_language,
+                role: profile.role
+              } : null
+            }
+          });
+
+          const result = await Promise.race([callPromise, timeoutPromise]);
+          response = result as any;
+          
+          console.log(`✅ Attempt ${attempt} successful:`, { 
+            hasData: !!response.data, 
+            hasError: !!response.error,
+            timestamp: new Date().toISOString()
+          });
+          
+          break; // Success, exit retry loop
+          
+        } catch (error) {
+          lastError = error as Error;
+          console.error(`❌ Attempt ${attempt} failed:`, error);
+          
+          if (attempt < 3) {
+            // Exponential backoff: wait 1s, then 2s, then 4s
+            const waitTime = Math.pow(2, attempt - 1) * 1000;
+            console.log(`⏳ Waiting ${waitTime}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+          }
+        }
+      }
 
       // Remove loading message
-      setMessages(prev => prev.filter(msg => msg.id !== 'loading-temp'));
+      setMessages(prev => prev.filter(msg => msg.id !== loadingId));
+
+      // Handle the response or final error
+      if (!response) {
+        throw lastError || new Error('All retry attempts failed');
+      }
+
+      const { data, error } = response;
 
       if (error) {
-        console.error('Supabase function error:', error);
+        console.error('💥 Supabase function error:', error);
         throw new Error(error.message || 'Failed to get AI response');
       }
 
@@ -188,7 +238,7 @@ I can provide advice specific to your location, crops, and farming conditions. W
         timestamp: new Date(),
       };
       
-      console.log('Adding AI response to chat:', {
+      console.log('🎉 Successfully added AI response:', {
         responseLength: data.response.length,
         model: data.model,
         timestamp: new Date().toISOString()
@@ -196,23 +246,46 @@ I can provide advice specific to your location, crops, and farming conditions. W
       
       setMessages(prev => [...prev, botResponse]);
       
-      // Show success toast for long responses
-      if (data.response.length > 500) {
+      // Show success toast for good responses
+      if (data.response.length > 100) {
         toast({
-          title: "AI Response Generated",
-          description: "Got a comprehensive answer from your AI farm assistant!",
+          title: "✅ Response Generated",
+          description: "Got expert agricultural advice from your AI assistant!",
         });
       }
 
     } catch (error) {
-      console.error('Error in chat request:', error);
+      console.error('💥 Critical chat error:', error);
       
       // Remove any loading messages
-      setMessages(prev => prev.filter(msg => msg.id !== 'loading-temp'));
+      setMessages(prev => prev.filter(msg => msg.id !== loadingId));
+      
+      // Determine error type and provide specific guidance
+      let errorTitle = "Chat Error";
+      let errorDescription = "An unexpected error occurred";
+      let errorContent = "";
+
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('Failed to fetch')) {
+          errorTitle = "⏱️ Timeout Error";
+          errorDescription = "The request took too long to complete";
+          errorContent = `🕐 **Connection Timeout**\n\nThe AI service is taking longer than expected to respond.\n\n**What to try:**\n1. ✅ Check your internet connection\n2. 🔄 Try asking a simpler question\n3. ⚙️ Switch to a faster AI model in Settings\n4. 🔄 Try again in a few moments\n\n*The service may be experiencing high demand.*`;
+        } else if (error.message.includes('API key') || error.message.includes('401')) {
+          errorTitle = "🔑 API Key Error";
+          errorDescription = "Authentication failed";
+          errorContent = `🔑 **Authentication Problem**\n\n${error.message}\n\n**Solutions:**\n1. ⚙️ Check your API key in Settings\n2. 🆕 Generate a new API key if needed\n3. 💳 Verify your OpenRouter account has credits\n4. 🔄 Try saving your API key again`;
+        } else if (error.message.includes('credits') || error.message.includes('402')) {
+          errorTitle = "💳 Credits Error";
+          errorDescription = "Insufficient account credits";
+          errorContent = `💳 **Insufficient Credits**\n\nYour OpenRouter account is out of credits.\n\n**Solutions:**\n1. 💰 Add credits to your OpenRouter account\n2. 🆓 Switch to a free model\n3. ⏳ Wait for free tier reset\n4. 📞 Contact OpenRouter support`;
+        } else {
+          errorContent = `🚨 **System Error**\n\n${error.message}\n\n**Troubleshooting:**\n1. 🌐 Check your internet connection\n2. ⚙️ Verify your API key in Settings\n3. 🔄 Try a different AI model\n4. ⏳ Wait a moment and try again\n5. 📞 Contact support if issue persists`;
+        }
+      }
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `🚨 **Chat Error**\n\n${error instanceof Error ? error.message : 'An unexpected error occurred'}\n\n**Troubleshooting:**\n- Check your internet connection\n- Verify your OpenRouter API key in Settings\n- Try asking a simpler question\n- Contact support if the issue persists\n\n*Error details: ${error instanceof Error ? error.message : 'Unknown error'}*`,
+        content: errorContent,
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -220,8 +293,8 @@ I can provide advice specific to your location, crops, and farming conditions. W
       
       // Show error toast
       toast({
-        title: "Chat Error",
-        description: error instanceof Error ? error.message : "Failed to get AI response",
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive",
       });
     } finally {
