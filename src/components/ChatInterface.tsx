@@ -7,6 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Send, Mic, MicOff, User, Bot, Loader2, Sparkles, Lightbulb, Leaf } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
+import useVoiceCommands from '@/hooks/useVoiceCommands';
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 
@@ -19,19 +21,52 @@ interface Message {
 }
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "🌱 Welcome to your **AI Farm Assistant**! I'm here to help you with:\n\n🌾 **Crop Management** - Planting, growing, and harvesting advice\n🦠 **Disease & Pest Control** - Identify and treat plant issues\n🌡️ **Weather & Climate** - Seasonal planning and adaptation\n🌿 **Sustainable Practices** - Eco-friendly farming methods\n💰 **Market Insights** - Crop pricing and market trends\n\nWhat agricultural challenge can I help you solve today?",
-      sender: 'bot',
-      timestamp: new Date(),
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { profile } = useAuth();
+
+  // Voice commands hook
+  const voiceCommands = useVoiceCommands({
+    onTranscript: (transcript) => {
+      setInputMessage(transcript);
+    },
+    onCommand: (command) => {
+      if (command === 'action:help') {
+        setInputMessage('What can you help me with?');
+      }
+    },
+    continuous: false,
+    language: profile?.preferred_language === 'hindi' ? 'hi-IN' : 'en-US'
+  });
+
+  // Initial welcome message
+  useEffect(() => {
+    const userName = profile?.full_name ? ` ${profile.full_name.split(' ')[0]}` : '';
+    const locationInfo = profile?.district && profile?.state ? ` from ${profile.district}, ${profile.state}` : '';
+    const cropInfo = profile?.crop_types?.length ? ` I see you grow ${profile.crop_types.join(', ')}.` : '';
+    
+    const welcomeMessage: Message = {
+      id: '1',
+      content: `🌱 Welcome to your **AI Farm Assistant**${userName}!${locationInfo ? ` I see you're${locationInfo}.` : ''}${cropInfo}
+
+I'm your personalized agricultural assistant, ready to help with:
+
+🌾 **Crop Management** - Planting, growing, and harvesting advice specific to your ${profile?.crop_types?.join(', ') || 'crops'}
+🦠 **Disease & Pest Control** - Identify and treat plant issues in your ${profile?.region_type || 'region'}
+🌡️ **Weather & Climate** - Local seasonal planning and adaptation
+🌿 **Sustainable Practices** - Eco-friendly farming methods for ${profile?.soil_type || 'your soil type'}
+💰 **Market Insights** - Current pricing and market trends
+
+I can provide advice specific to your location, crops, and farming conditions. What agricultural challenge can I help you solve today?`,
+      sender: 'bot',
+      timestamp: new Date(),
+    };
+    
+    setMessages([welcomeMessage]);
+  }, [profile]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -95,10 +130,16 @@ export function ChatInterface() {
           message: currentMessage,
           model: selectedModel,
           apiKey: openRouterKey,
-          userContext: {
-            location: null, // TODO: Get from user profile
-            farmType: null  // TODO: Get from user profile
-          }
+          userContext: profile ? {
+            location: profile.location,
+            district: profile.district,
+            state: profile.state,
+            crop_types: profile.crop_types,
+            soil_type: profile.soil_type,
+            region_type: profile.region_type,
+            preferred_language: profile.preferred_language,
+            role: profile.role
+          } : null
         }
       });
 
@@ -186,45 +227,7 @@ export function ChatInterface() {
   };
 
   const handleVoiceInput = () => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInputMessage(transcript);
-        setIsListening(false);
-      };
-
-      recognition.onerror = () => {
-        setIsListening(false);
-        toast({
-          title: "Voice Recognition Error",
-          description: "Could not recognize speech. Please try again.",
-          variant: "destructive",
-        });
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognition.start();
-    } else {
-      toast({
-        title: "Voice Not Supported",
-        description: "Your browser doesn't support voice recognition.",
-        variant: "destructive",
-      });
-    }
+    voiceCommands.toggleListening();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -391,17 +394,23 @@ export function ChatInterface() {
           <div className="flex flex-col gap-3">
             <Button
               onClick={handleVoiceInput}
-              variant={isListening ? "destructive" : "outline"}
+              variant={voiceCommands.isListening ? "destructive" : "outline"}
               size="lg"
-              disabled={isLoading}
+              disabled={isLoading || !voiceCommands.isSupported}
               className="h-[60px] w-[60px] rounded-xl shadow-sm"
+              title={voiceCommands.isSupported ? "Click to use voice input" : "Voice input not supported"}
             >
-              {isListening ? (
+              {voiceCommands.isListening ? (
                 <MicOff className="w-5 h-5" />
               ) : (
                 <Mic className="w-5 h-5" />
               )}
             </Button>
+            {voiceCommands.isListening && (
+              <Badge variant="secondary" className="absolute -top-8 left-0 bg-red-100 text-red-700">
+                Listening...
+              </Badge>
+            )}
             <Button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}

@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
+import WeatherWidget from '@/components/WeatherWidget';
+import MarketPriceWidget from '@/components/MarketPriceWidget';
 import { 
   Users, 
   MessageSquare, 
@@ -380,6 +382,28 @@ export const RoleBasedDashboard: React.FC = () => {
             )}
           </div>
         )}
+      </div>
+
+      {/* Weather and Market Data Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <WeatherWidget />
+        <MarketPriceWidget />
+        
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Today's Tasks</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">3</div>
+            <p className="text-xs text-muted-foreground">Pending farm activities</p>
+            <div className="mt-3 space-y-1">
+              <div className="text-sm">• Water tomato plants</div>
+              <div className="text-sm">• Check soil moisture</div>
+              <div className="text-sm">• Apply fertilizer to rice</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Stats Grid */}

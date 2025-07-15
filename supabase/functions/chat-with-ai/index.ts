@@ -23,6 +23,9 @@ serve(async (req) => {
     });
 
     const { message, model, conversationId, userContext, apiKey } = requestBody;
+    
+    // Extract user profile from userContext if provided
+    const userProfile = userContext;
 
     if (!apiKey || apiKey.trim() === '') {
       console.error('No API key provided');
